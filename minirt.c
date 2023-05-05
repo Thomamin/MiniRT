@@ -189,12 +189,13 @@ t_vec	set_lower_left_corner(t_camera *camera)
 
 	z = make_vec(0,0,1);
 	z_axis = make_vec(- camera->view_point.x,- camera->view_point.y, - camera->view_point.z);
-	horizontal = cross(camera->view_point, z);
-	t = sqrt(pow(camera->fov, 2) / dot(horizontal, horizontal));
-	horizontal = v_mul_n(horizontal, t);
+	horizontal = cross(camera->view_point, z); //외적을 이용한 수평축 설정
+	t = sqrt(pow(camera->fov, 2) / dot(horizontal, horizontal)); //? 동일 vertor dot = 1
+printf("dot horizontal: %f\n",dot(horizontal, horizontal));
+	horizontal = v_mul_n(horizontal, t * 1200/600);
 	camera->hor = horizontal;
-	vertical = cross(horizontal, camera->view_point);
-	t = sqrt(pow(camera->fov, 2) / dot(vertical, vertical));
+	vertical = cross(horizontal, camera->view_point); //외적을 이용한 수직축 설정
+	t = sqrt(pow(camera->fov, 2) / dot(vertical, vertical));  //?  동일 vertor dot = 1
 	vertical = v_mul_n(vertical, t);
 	camera->ver = vertical;
 	if (z_axis.x == 0 && z_axis.y == 0 && (z_axis.z =! 0))
@@ -208,8 +209,8 @@ t_vec	set_lower_left_corner(t_camera *camera)
 		vertical = v_mul_n(vertical, t);
 		camera->ver = vertical;
 	}
-	printf("\nhorizontal: %f, %f, %f\n\n", horizontal.x, horizontal.y, horizontal.z);
-	printf("\nvertical: %f, %f, %f\n\n", vertical.x, vertical.y, vertical.z);
+printf("\nhorizontal: %f, %f, %f\n\n", horizontal.x, horizontal.y, horizontal.z);
+printf("\nvertical: %f, %f, %f\n\n", vertical.x, vertical.y, vertical.z);
 	return (v_sub(camera->location, v_add(v_add(v_div_n(horizontal, 2),
 					v_div_n(vertical, 2)), z_axis)));
 }
@@ -433,7 +434,7 @@ int	ray_color(t_ray r, t_set *set)
 	return (set_color(color, ratio, 0.2));
 }
 
-void	render(t_data *data, t_set *set, double height, double width)
+void	render(t_data *data, t_set *set, double width, double height)
 {
 	int		j;
 	int		i;
@@ -471,11 +472,11 @@ int	main(int argc, char **argv)
 	checkmap(argv, &set);
 	set.camera.lower_left_corner = set_lower_left_corner(&set.camera);
 	img.mlx = mlx_init();
-	img.win = mlx_new_window(img.mlx, 800, 800, "ray tracing");
-	img.img = mlx_new_image(img.mlx, 800, 800);
+	img.win = mlx_new_window(img.mlx, 1200, 600, "ray tracing");
+	img.img = mlx_new_image(img.mlx, 1200, 600);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel,
 			&img.line_length, &img.endian);
-	render(&img, &set, 800, 800);
+	render(&img, &set, 1200, 600);
 	mlx_put_image_to_window(img.mlx, img.win, img.img, 0, 0);
 	mlx_loop(img.mlx);
 }
