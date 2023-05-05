@@ -271,6 +271,13 @@ double	hit_cylinder(t_cylinder *cy, t_ray r)
 	half_b = dot(cross(r.dir, cy->normal), cross(oc, cy->normal));
 	c = length_squared(cross(oc, cy->normal)) - pow(cy->radius, 2);
 	discriminant = half_b * half_b - a * c;
+
+	// oc = v_sub(r.orig, cy->center);
+	// a = pow(dot(r.dir, cy->normal), 2) - length_squared(r.dir);
+	// half_b = 2 * dot(oc, cy->normal) * dot(r.dir, cy->normal) - 2 * dot(oc, r.dir);
+	// c = pow(dot(oc, cy->normal), 2) - length_squared(oc) + cy->radius * cy->radius;
+	// discriminant = half_b * half_b - 4 * a * c;
+
 	if (discriminant < 0)
 		return (-1.0);
 	else
@@ -330,6 +337,27 @@ int	set_color(t_vec ob_color, double ratio, double light)
 	return (color);
 }
 
+double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
+{
+	t_ray		contact;
+	t_vec		normal;
+	t_vec		center_vec;
+	t_cylinder 	*cylinder;
+	double		ratio;
+	static int 	i;
+
+	cylinder = ob->object;
+	contact.orig = at(r,t);
+	center_vec = v_add(cylinder->center, v_mul_n(cylinder->normal, dot(contact.orig, cylinder->normal)));
+	normal = unit_vector(v_sub(contact.orig, center_vec));
+	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
+	ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
+	ob->color = cylinder->color;
+	ob->ratio = ratio;
+	ob->length = length_squared(v_sub(set->camera.location, contact.orig));
+	return (ratio);
+}
+
 double	ratio_sp(t_ray r, double t, t_object *ob, t_set *set)
 {
 	t_ray	contact;
@@ -348,6 +376,7 @@ double	ratio_sp(t_ray r, double t, t_object *ob, t_set *set)
 	ob->length = length_squared(v_sub(set->camera.location, contact.orig));
 	return (ratio);
 }
+
 
 double	ratio_pl(t_ray r, double t, t_object *ob, t_set *set)
 {
@@ -393,14 +422,17 @@ int	ray_color(t_ray r, t_set *set)
 		{
 			cy = ob->object;
 			t = hit_cylinder(cy, r);
-			if (t > 0)
-				return (set_color(cy->color, 0, 0.2));
+			if (t > 0.0)
+				ratio_cy(r, t, ob, set);
+			else
+				ob->length = 184467440737095516;
+				//return (set_color(cy->color, 0, 0.2));
 		}
 		else if (ob->type == 2)
 		{
 			pl = ob->object;
 			t = hit_plane(pl, r);
-			if (t > 0)
+			if (t > 0.0)
 				ratio_pl(r, t, ob, set);
 			else
 			{
