@@ -139,7 +139,7 @@ t_cylinder	*set_cylinder(char *map)
 	cy = malloc(sizeof(t_cylinder) * 1);
 	cy->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	cy->normal = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
-	cy->radius = ft_atof(&map);
+	cy->radius = ft_atof(&map) / 2;
 	cy->height = ft_atof(&map);
 	cy->color = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	cy->top = v_sub(cy->center, v_mul_n(cy->normal, cy->height / 2));
@@ -265,23 +265,27 @@ double	hit_cylinder(t_cylinder *cy, t_ray r)
 	double	half_b;
 	double	c;
 	double	discriminant;
+	double	t;
 
+// 	oc = v_sub(r.orig, cy->center);
+// 	a = length_squared(cross(r.dir, cy->normal));
+// 	half_b = dot(cross(r.dir, cy->normal), cross(oc, cy->normal));
+// 	c = length_squared(cross(oc, cy->normal)) - pow(cy->radius, 2);
+// 	discriminant = half_b * half_b - a * c;
+// printf("a: %f, hb: %f, c: %f\n", a, half_b, c);
+	
 	oc = v_sub(r.orig, cy->center);
-	a = length_squared(cross(r.dir, cy->normal));
-	half_b = dot(cross(r.dir, cy->normal), cross(oc, cy->normal));
-	c = length_squared(cross(oc, cy->normal)) - pow(cy->radius, 2);
+	a = length_squared(r.dir) - pow(dot(r.dir, cy->normal), 2);
+	half_b =  dot(oc, r.dir) - dot(oc, cy->normal) * dot(r.dir, cy->normal);
+	c = dot(oc, oc) +  pow(dot(oc, cy->normal), 2) - cy->radius * cy->radius;
 	discriminant = half_b * half_b - a * c;
-
-	// oc = v_sub(r.orig, cy->center);
-	// a = pow(dot(r.dir, cy->normal), 2) - length_squared(r.dir);
-	// half_b = 2 * dot(oc, cy->normal) * dot(r.dir, cy->normal) - 2 * dot(oc, r.dir);
-	// c = pow(dot(oc, cy->normal), 2) - length_squared(oc) + cy->radius * cy->radius;
-	// discriminant = half_b * half_b - 4 * a * c;
-
-	if (discriminant < 0)
+//printf("re  a: %f, hb: %f, c: %f\n", a, half_b, c);	
+	t = - half_b - sqrt(discriminant) / a;
+	if (discriminant < 0 \
+	|| dot(at(r, t), cy->normal) < 0 || dot(at(r, t), cy->normal) > cy->height)
 		return (-1.0);
 	else
-		return (- half_b - sqrt(discriminant) / a);
+		return (t);
 }
 
 int      hit_cylinder_cap(t_cylinder *cy, t_ray ray)
@@ -348,7 +352,14 @@ double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 
 	cylinder = ob->object;
 	contact.orig = at(r,t);
-	center_vec = v_add(cylinder->center, v_mul_n(cylinder->normal, dot(contact.orig, cylinder->normal)));
+	// if (dot(v_sub(cylinder->center, contact.orig), cylinder->normal) < 50)
+	// 	center_vec = cylinder->center;
+	// else
+		center_vec = v_add(cylinder->center, \
+		v_mul_n(cylinder->normal, length(v_sub(cylinder->center, contact.orig))\
+		/ dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
+//printf("cy normal length: %f   dot: contact org and cy normal %f\n", length(cylinder->normal), dot(contact.orig, cylinder->normal));
+//printf("cy diameter: %f  contact.orig to center: %f\n", cylinder->radius, length(v_sub(contact.orig, center_vec)));
 	normal = unit_vector(v_sub(contact.orig, center_vec));
 	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
 	ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
