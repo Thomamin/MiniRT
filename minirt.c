@@ -145,7 +145,7 @@ t_cylinder	*set_cylinder(char *map)
 	cy->top = v_sub(cy->center, v_mul_n(cy->normal, cy->height / 2));
 	cy->botton = v_add(cy->center, v_mul_n(cy->normal, cy->height / 2));
 	cy->h = unit_vector(v_sub(cy->top, cy->botton));
-	return (cy);
+	return (cy); 
 }
 
 void	checkmap(char **argv, t_set	*set)
@@ -267,22 +267,23 @@ double	hit_cylinder(t_cylinder *cy, t_ray r)
 	double	discriminant;
 	double	t;
 
-// 	oc = v_sub(r.orig, cy->center);
-// 	a = length_squared(cross(r.dir, cy->normal));
-// 	half_b = dot(cross(r.dir, cy->normal), cross(oc, cy->normal));
-// 	c = length_squared(cross(oc, cy->normal)) - pow(cy->radius, 2);
-// 	discriminant = half_b * half_b - a * c;
+	oc = v_sub(r.orig, cy->center);
+	a = length_squared(cross(r.dir, cy->normal));
+	half_b = dot(cross(r.dir, cy->normal), cross(oc, cy->normal));
+	c = length_squared(cross(oc, cy->normal)) - pow(cy->radius, 2);
+	discriminant = half_b * half_b - a * c;
 // printf("a: %f, hb: %f, c: %f\n", a, half_b, c);
 	
-	oc = v_sub(r.orig, cy->center);
-	a = length_squared(r.dir) - pow(dot(r.dir, cy->normal), 2);
-	half_b =  dot(oc, r.dir) - dot(oc, cy->normal) * dot(r.dir, cy->normal);
-	c = dot(oc, oc) +  pow(dot(oc, cy->normal), 2) - cy->radius * cy->radius;
-	discriminant = half_b * half_b - a * c;
+	// oc = v_sub(r.orig, cy->center);
+	// a = length_squared(r.dir) - pow(dot(r.dir, cy->normal), 2);
+	// half_b =  dot(oc, r.dir) - dot(oc, cy->normal) * dot(r.dir, cy->normal);
+	// c = dot(oc, oc) +  pow(dot(oc, cy->normal), 2) - cy->radius * cy->radius;
+	// discriminant = half_b * half_b - a * c;
 //printf("re  a: %f, hb: %f, c: %f\n", a, half_b, c);	
 	t = - half_b - sqrt(discriminant) / a;
 	if (discriminant < 0 \
-	|| dot(at(r, t), cy->normal) < 0 || dot(at(r, t), cy->normal) > cy->height)
+	|| dot(at(r, t), cy->normal) < -(cy->height / 2) \
+	|| dot(at(r, t), cy->normal) > cy->height / 2)
 		return (-1.0);
 	else
 		return (t);
@@ -353,11 +354,12 @@ double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 	cylinder = ob->object;
 	contact.orig = at(r,t);
 	// if (dot(v_sub(cylinder->center, contact.orig), cylinder->normal) < 50)
-	// 	center_vec = cylinder->center;
+	//  	center_vec = cylinder->center;
 	// else
-		center_vec = v_add(cylinder->center, \
-		v_mul_n(cylinder->normal, length(v_sub(cylinder->center, contact.orig))\
-		/ dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
+	//	center_vec = v_add(cylinder->center, \
+	//	v_mul_n(cylinder->normal, dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
+	center_vec = v_add(cylinder->center, \
+	v_mul_n(unit_vector(cylinder->normal), dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
 //printf("cy normal length: %f   dot: contact org and cy normal %f\n", length(cylinder->normal), dot(contact.orig, cylinder->normal));
 //printf("cy diameter: %f  contact.orig to center: %f\n", cylinder->radius, length(v_sub(contact.orig, center_vec)));
 	normal = unit_vector(v_sub(contact.orig, center_vec));
@@ -369,41 +371,106 @@ double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 	return (ratio);
 }
 
-double	ratio_sp(t_ray r, double t, t_object *ob, t_set *set)
+int hit_something(t_set *set, t_ray contact)
 {
-	t_ray	contact;
-	t_vec	normal;
-	t_sphere *sphere;
-	double	ratio;
-	static int i;
-
-	sphere = ob->object;
-	contact.orig = at(r,t);
-	normal = unit_vector(v_sub(at(r, t), sphere->center));
-	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
-	ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
-	ob->color = sphere->color;
-	ob->ratio = ratio;
-	ob->length = length_squared(v_sub(set->camera.location, contact.orig));
-	return (ratio);
+    t_sphere    *sp;
+    t_cylinder  *cy;
+    t_object    *ob;
+    t_plane     *pl;
+    double      t;
+    ob = set->objects;
+    while (ob)
+    {
+        if (ob->type == 0)
+        {
+            sp = ob->object;
+            t = hit_sphere(sp, contact);
+            if (t != -1)
+            {
+                return (t);
+            }
+        }
+        else if (ob->type == 1)
+        {
+            cy = ob->object;
+            //return (1);
+        }
+        else if (ob->type == 2)
+        {
+            pl = ob->object;
+            t = hit_plane(pl, contact);
+            if (t > 0)
+                return (t);
+        }
+        ob = ob->next;
+    }
+    return (0);
 }
-
-
-double	ratio_pl(t_ray r, double t, t_object *ob, t_set *set)
+double  ratio_sp(t_ray r, double t, t_object *ob, t_set *set)
 {
-	t_ray	contact;
-	t_vec	normal;
-	double	ratio;
-	t_plane *pl;
-
-	pl = ob->object;
-	contact.orig = at(r,t);
-	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
-	ratio = dot(contact.dir, pl->normal) / length(pl->normal) * length(contact.dir);
-	ob->color = pl->color;
-	ob->ratio = ratio;
-	ob->length = length_squared(v_sub(set->camera.location, contact.orig));
-	return (ratio);
+    t_ray   contact;
+    t_vec   normal;
+    t_sphere *sphere;
+    double  ratio;
+    t_vec   check;
+    sphere = ob->object;
+    contact.orig = at(r,t);
+    normal = unit_vector(v_sub(at(r, t), sphere->center));
+    contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
+    ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
+    ob->color = sphere->color;
+    ob->ratio = ratio;
+    ob->length = length_squared(v_sub(set->camera.location, contact.orig));
+    t = hit_something(set, contact);
+    if (t > 0)
+    {
+        check = at(contact, t);
+        if (set->light.location.x > contact.orig.x)
+        {
+            if (contact.orig.x < check.x && check.x < set->light.location.x)
+                ob->ratio = 0;
+        }
+        else
+        {
+            if (set->light.location.x < check.x && check.x < contact.orig.x)
+                ob->ratio = 0;
+        }
+    }
+    return (ratio);
+}
+double  ratio_pl(t_ray r, double t, t_object *ob, t_set *set)
+{
+    t_ray   contact;
+    t_vec   normal;
+    double  ratio;
+    t_vec   check;
+    t_plane *pl;
+    pl = ob->object;
+    contact.orig = at(r,t);
+    contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
+    ratio = dot(contact.dir, pl->normal) / length(pl->normal) * length(contact.dir);
+    ob->color = pl->color;
+    ob->ratio = ratio;
+    ob->length = length_squared(v_sub(set->camera.location, contact.orig));
+    contact.orig.x += contact.dir.x;
+    contact.orig.y += contact.dir.y;
+    contact.orig.z += contact.dir.z;
+    t = hit_something(set, contact);
+    if (t > 0)
+    {
+        check = at(contact, t);
+        if (set->light.location.x > contact.orig.x)
+        {
+            if (contact.orig.x < check.x && check.x < set->light.location.x)
+                ob->ratio = 0;
+        }
+        else
+        {
+            if (set->light.location.x < check.x && check.x < contact.orig.x)
+                ob->ratio = 0;
+        }
+    }
+    return (ratio);
 }
 
 int	ray_color(t_ray r, t_set *set)
@@ -474,6 +541,8 @@ int	ray_color(t_ray r, t_set *set)
 		}
 		ob = ob->next;
 	}
+	if (length == 184467440737095516)
+		return (0);
 	return (set_color(color, ratio, 0.2));
 }
 
