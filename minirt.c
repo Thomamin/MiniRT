@@ -258,6 +258,32 @@ double	hit_sphere(t_sphere *s, t_ray r)
 		return ((- half_b - sqrt(discriminant)) / a);
 }
 
+int      hit_cylinder_cap(t_cylinder *cy, t_ray r, double *t)
+{
+	t_vec	centers[2];
+	double	coefficient[2];
+	double	constant[2];
+
+	r.dir = unit_vector(r.dir);
+	centers[0] = v_add(cy->center, v_mul_n(cy->normal, cy->height));
+	coefficient[0] = dot(r.dir, cy->normal);
+	constant[0] = dot(cy->normal, v_sub(centers[0], r.orig));
+	*t = constant[0] / coefficient[0];
+	if (coefficient[0] != 0 && \
+	length(v_sub(centers[0], v_add(r.orig, v_mul_n(r.dir, *t)))) <= cy->radius)
+		return (1);
+
+	centers[1] = cy->center;
+	coefficient[1] = dot(r.dir, cy->normal);
+	constant[1] = dot(cy->normal, v_sub(centers[1], r.orig));
+	*t = constant[1] / coefficient[1];
+	if (coefficient[1] != 0 && \
+	length(v_sub(centers[1], v_add(r.orig, v_mul_n(r.dir, *t)))) <= cy->radius)
+		return (1);
+
+	return (0);
+}
+
 double	hit_cylinder(t_cylinder *cy, t_ray r)
 {
 	t_vec	oc;
@@ -275,38 +301,15 @@ double	hit_cylinder(t_cylinder *cy, t_ray r)
 	discriminant = half_b * half_b - a * c;
 	t = - half_b - sqrt(discriminant) / - a;
 	if (((discriminant < 0 \
-	|| dot(v_sub(at(r, t), cy->center), cy->normal) < -(cy->height / 2.0) \
-	|| dot(v_sub(at(r, t), cy->center), cy->normal) > cy->height / 2.0)) \
+	|| dot(v_sub(at(r, t), oc), cy->normal) < 0 - cy->height * dot(cy->normal, r.dir)\
+	|| dot(v_sub(at(r, t), oc), cy->normal) > cy->height - cy->height * dot(cy->normal, r.dir))) \
 	&& !hit_cylinder_cap(cy, r, &t))
 		return (-1.0);
 	else
+	{
+		printf("dot(cy->normal, r.dir): %f\n", dot(cy->normal, r.dir));
 		return (t);
-}
-
-int      hit_cylinder_cap(t_cylinder *cy, t_ray r, double *t)
-{
-	t_vec	centers[2];
-	double	coefficient[2];
-	double	constant[2];
-
-	r.dir = unit_vector(r.dir);
-	centers[0] = v_add(cy->center, v_mul_n(cy->normal, cy->height / 2.0)); 
-	coefficient[0] = dot(r.dir, cy->normal);
-	constant[0] = dot(cy->normal, v_sub(centers[0], r.orig));
-	*t = constant[0] / coefficient[0];
-	if (coefficient[0] != 0 && \
-	length(v_sub(centers[0], v_add(r.orig, v_mul_n(r.dir, *t)))) <= cy->radius)
-		return (1);
-
-	centers[1] = v_add(cy->center, v_mul_n(cy->normal, -cy->height / 2.0));
-	coefficient[1] = dot(r.dir, cy->normal);
-	constant[1] = dot(cy->normal, v_sub(centers[1], r.orig));
-	*t = constant[1] / coefficient[1];
-	if (coefficient[1] != 0 && \
-	length(v_sub(centers[1], v_add(r.orig, v_mul_n(r.dir, *t)))) <= cy->radius)
-		return (1);
-
-	return (0);
+	}
 }
 
 double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
@@ -370,27 +373,6 @@ int	set_color(t_vec ob_color, double ratio, double light)
 	return (color);
 }
 
-double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
-{
-	t_ray		contact;
-	t_vec		normal;
-	t_vec		center_vec;
-	t_cylinder 	*cylinder;
-	double		ratio;
-	static int 	i;
-
-	cylinder = ob->object;
-	contact.orig = at(r,t);
-	center_vec = v_add(cylinder->center, \
-	v_mul_n(cylinder->normal, dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
-	normal = unit_vector(v_sub(contact.orig, center_vec));
-	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
-	ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
-	ob->color = cylinder->color;
-	ob->ratio = ratio;
-	ob->length = length_squared(v_sub(set->camera.location, contact.orig));
-	return (ratio);
-}
 
 int hit_something(t_set *set, t_ray contact)
 {
