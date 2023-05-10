@@ -138,7 +138,7 @@ t_cylinder	*set_cylinder(char *map)
 	map = map + 2;
 	cy = malloc(sizeof(t_cylinder) * 1);
 	cy->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
-	cy->normal = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	cy->normal = unit_vector(make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map)));
 	cy->radius = ft_atof(&map) / 2;
 	cy->height = ft_atof(&map);
 	cy->color = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
@@ -192,11 +192,11 @@ t_vec	set_lower_left_corner(t_camera *camera)
 	horizontal = cross(camera->view_point, z); //외적을 이용한 수평축 설정
 	t = sqrt(pow(camera->fov, 2) / dot(horizontal, horizontal)); //? 동일 vertor dot = 1
 printf("dot horizontal: %f\n",dot(horizontal, horizontal));
-	horizontal = v_mul_n(horizontal, t * 1200/600);
+	horizontal = v_mul_n(horizontal, t);
 	camera->hor = horizontal;
 	vertical = cross(horizontal, camera->view_point); //외적을 이용한 수직축 설정
 	t = sqrt(pow(camera->fov, 2) / dot(vertical, vertical));  //?  동일 vertor dot = 1
-	vertical = v_mul_n(vertical, t);
+	vertical = v_mul_n(vertical, t * 800 / 1200);
 	camera->ver = vertical;
 	if (z_axis.x == 0 && z_axis.y == 0 && (z_axis.z =! 0))
 	{
@@ -206,7 +206,7 @@ printf("dot horizontal: %f\n",dot(horizontal, horizontal));
 		camera->hor = horizontal;
 		vertical = make_vec(0, 1, 0);
 		t = sqrt(pow(camera->fov, 2) / dot(vertical, vertical));
-		vertical = v_mul_n(vertical, t);
+		vertical = v_mul_n(vertical, t * 800 / 1200);
 		camera->ver = vertical;
 	}
 printf("\nhorizontal: %f, %f, %f\n\n", horizontal.x, horizontal.y, horizontal.z);
@@ -267,40 +267,68 @@ double	hit_cylinder(t_cylinder *cy, t_ray r)
 	double	discriminant;
 	double	t;
 
-	oc = v_sub(r.orig, cy->center);
-	a = length_squared(cross(r.dir, cy->normal));
-	half_b = dot(cross(r.dir, cy->normal), cross(oc, cy->normal));
-	c = length_squared(cross(oc, cy->normal)) - pow(cy->radius, 2);
+	r.dir = unit_vector(r.dir);	
+	oc = v_sub(cy->center, r.orig);
+	a = pow(dot(r.dir, cy->normal), 2) - 1;
+	half_b =  dot(oc, cy->normal) * dot(r.dir, cy->normal) - dot(oc, r.dir);
+	c = cy->radius * cy->radius - dot(oc, oc) +  pow(dot(oc, cy->normal), 2);
 	discriminant = half_b * half_b - a * c;
-// printf("a: %f, hb: %f, c: %f\n", a, half_b, c);
-	
-	// oc = v_sub(r.orig, cy->center);
-	// a = length_squared(r.dir) - pow(dot(r.dir, cy->normal), 2);
-	// half_b =  dot(oc, r.dir) - dot(oc, cy->normal) * dot(r.dir, cy->normal);
-	// c = dot(oc, oc) +  pow(dot(oc, cy->normal), 2) - cy->radius * cy->radius;
-	// discriminant = half_b * half_b - a * c;
-//printf("re  a: %f, hb: %f, c: %f\n", a, half_b, c);	
-	t = - half_b - sqrt(discriminant) / a;
-	if (discriminant < 0 \
-	|| dot(at(r, t), cy->normal) < -(cy->height / 2) \
-	|| dot(at(r, t), cy->normal) > cy->height / 2)
+	t = - half_b - sqrt(discriminant) / - a;
+	if (((discriminant < 0 \
+	|| dot(v_sub(at(r, t), cy->center), cy->normal) < -(cy->height / 2.0) \
+	|| dot(v_sub(at(r, t), cy->center), cy->normal) > cy->height / 2.0)) \
+	&& !hit_cylinder_cap(cy, r, &t))
 		return (-1.0);
 	else
 		return (t);
 }
 
-int      hit_cylinder_cap(t_cylinder *cy, t_ray ray)
+int      hit_cylinder_cap(t_cylinder *cy, t_ray r, double *t)
 {
-	t_vec    circle_center;
-    double 	root;
-    double 	diameter;
+	t_vec	centers[2];
+	double	coefficient[2];
+	double	constant[2];
 
-	circle_center = v_add(cy->center, v_mul_n(cy->normal, cy->height));
-	root = dot(v_sub(circle_center, ray.dir), cy->normal);
-	diameter = length(v_sub(circle_center, at(ray, root)));
-	if (fabs(cy->radius) < fabs(diameter))
-		return (0);
-    return (1);
+	r.dir = unit_vector(r.dir);
+	centers[0] = v_add(cy->center, v_mul_n(cy->normal, cy->height / 2.0)); 
+	coefficient[0] = dot(r.dir, cy->normal);
+	constant[0] = dot(cy->normal, v_sub(centers[0], r.orig));
+	*t = constant[0] / coefficient[0];
+	if (coefficient[0] != 0 && \
+	length(v_sub(centers[0], v_add(r.orig, v_mul_n(r.dir, *t)))) <= cy->radius)
+		return (1);
+
+	centers[1] = v_add(cy->center, v_mul_n(cy->normal, -cy->height / 2.0));
+	coefficient[1] = dot(r.dir, cy->normal);
+	constant[1] = dot(cy->normal, v_sub(centers[1], r.orig));
+	*t = constant[1] / coefficient[1];
+	if (coefficient[1] != 0 && \
+	length(v_sub(centers[1], v_add(r.orig, v_mul_n(r.dir, *t)))) <= cy->radius)
+		return (1);
+
+	return (0);
+}
+
+double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
+{
+	t_ray		contact;
+	t_vec		normal;
+	t_vec		center_vec;
+	t_cylinder 	*cylinder;
+	double		ratio;
+	static int 	i;
+
+	cylinder = ob->object;
+	contact.orig = at(r,t);
+	center_vec = v_add(cylinder->center, \
+	v_mul_n(cylinder->normal, dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
+	normal = unit_vector(v_sub(contact.orig, center_vec));
+	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
+	ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
+	ob->color = cylinder->color;
+	ob->ratio = ratio;
+	ob->length = length_squared(v_sub(set->camera.location, contact.orig));
+	return (ratio);
 }
 
 int	cy_boundary(t_cylinder *cy, t_vec contact)
@@ -353,15 +381,8 @@ double	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 
 	cylinder = ob->object;
 	contact.orig = at(r,t);
-	// if (dot(v_sub(cylinder->center, contact.orig), cylinder->normal) < 50)
-	//  	center_vec = cylinder->center;
-	// else
-	//	center_vec = v_add(cylinder->center, \
-	//	v_mul_n(cylinder->normal, dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
 	center_vec = v_add(cylinder->center, \
-	v_mul_n(unit_vector(cylinder->normal), dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
-//printf("cy normal length: %f   dot: contact org and cy normal %f\n", length(cylinder->normal), dot(contact.orig, cylinder->normal));
-//printf("cy diameter: %f  contact.orig to center: %f\n", cylinder->radius, length(v_sub(contact.orig, center_vec)));
+	v_mul_n(cylinder->normal, dot(v_sub(cylinder->center, contact.orig), cylinder->normal)));
 	normal = unit_vector(v_sub(contact.orig, center_vec));
 	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
 	ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
@@ -584,11 +605,11 @@ int	main(int argc, char **argv)
 	checkmap(argv, &set);
 	set.camera.lower_left_corner = set_lower_left_corner(&set.camera);
 	img.mlx = mlx_init();
-	img.win = mlx_new_window(img.mlx, 1200, 600, "ray tracing");
-	img.img = mlx_new_image(img.mlx, 1200, 600);
+	img.win = mlx_new_window(img.mlx, 1200, 800, "ray tracing");
+	img.img = mlx_new_image(img.mlx, 1200, 800);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel,
 			&img.line_length, &img.endian);
-	render(&img, &set, 1200, 600);
+	render(&img, &set, 1200, 800);
 	mlx_put_image_to_window(img.mlx, img.win, img.img, 0, 0);
 	mlx_loop(img.mlx);
 }
