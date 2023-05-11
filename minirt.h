@@ -6,7 +6,7 @@
 /*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 11:54:18 by migo              #+#    #+#             */
-/*   Updated: 2023/05/04 12:35:05 by migo             ###   ########.fr       */
+/*   Updated: 2023/05/09 14:39:08 by migo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <math.h>
-//# include "/Users/thomamin/prj/minirt/lib/mlx/mlx.h"
 # include "mlx.h"
 # include "get_next_line.h"
 
@@ -80,8 +79,11 @@ typedef struct s_camera
 typedef struct s_object
 {
 	int				type;
+	int				hit_part;
 	double			ratio;
 	double			length;
+	double			length2;
+	double			check;
 	t_vec			color;
 	void			*object;
 	struct s_object	*next;
@@ -106,17 +108,17 @@ typedef struct s_data
 }t_data;
 
 t_vec	make_vec(double x, double y, double z);
-t_vec	v_mul_n(t_vec v1, double n);
+t_vec	v_mul_n(t_vec v1, float n);
 t_vec	v_mul(t_vec v1, t_vec v2);
 t_vec	v_sub(t_vec v1, t_vec v2);
 t_vec	v_add(t_vec v1, t_vec v2);
-t_vec	v_div_n(t_vec v1, double n);
+t_vec	v_div_n(t_vec v1, float n);
 t_vec	cross(t_vec v1, t_vec v2);
 double	degrees_to_radians(double degrees);
-double	dot(t_vec v1, t_vec v2);
-double	length_squared(t_vec e);
+float	dot(t_vec v1, t_vec v2);
+float	length_squared(t_vec e);
 t_vec	at(t_ray r, double t);
 t_vec	unit_vector(t_vec v);
-double	length(t_vec e);
+float	length(t_vec e);
 
 #endif
