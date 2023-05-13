@@ -5,11 +5,10 @@ int	ray_color(t_ray r, t_set *set)
 {
 	double	t;
 	t_object	*ob;
-	t_vec		color;
+	t_object	tmp;
 	t_vec		contact;
-	double		ratio;
-	double		length;
 
+	tmp.length = -1;
 	ob = set->objects;
 	while (ob)
 	{
@@ -17,47 +16,14 @@ int	ray_color(t_ray r, t_set *set)
 		if (t > 0.0)
 			ob->ratio_f(r, t, ob, set);
 		else
-		{
-			if (ob->type == 0)
-				ob->length = 184467440737095516;
-			else if (ob->type == 1)
-			{
-				ob->length = 184467440737095516;
-				if (t != -1)
-				 	ob->ratio_f(r, t, ob, set);
-			}
-			else if (ob->type == 2)
-			{
-				color = make_vec(0, 0, 0);
-				ob->length = 184467440737095516;
-			}
-		}
+			ob->length = 184467440737095516;
+		if (tmp.length == -1 || tmp.length > ob->length)
+			tmp = *ob;
 		ob = ob->next;
 	}
-	length = -1;
-	ob = set->objects;
-	while (ob)
-	{
-		if (length == -1)
-		{
-			ratio = ob->ratio;
-			length = ob->length;
-			color = ob->color;
-		}
-		else
-		{
-			if (length > ob->length)
-			{
-				ratio = ob->ratio;
-				length = ob->length;
-				color = ob->color;
-			}
-		}
-		ob = ob->next;
-	}
-	if (length == 184467440737095516)
+	if (tmp.length == 184467440737095516)
 		return (0);
-	return (set_color(color, ratio, 0.2, set->light.power));
+	return (set_color(tmp.color, tmp.ratio, 0.2, set->light.power));
 }
 
 int	set_color(t_vec ob_color, double ratio, double light, double power)
