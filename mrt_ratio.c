@@ -14,9 +14,6 @@ double  ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 	if (ob->hit_part == 0)
 	{
     	contact.orig = at(r,t);
-		// printf("r.dir %f %f %f\n", r.dir.x, r.dir.y, r.dir.z);
-		// printf("r.orig %f %f %f\n", r.orig.x, r.orig.y, r.orig.z);
-		// printf("t %f\n", t);
     	center_vec = v_add(cylinder->center, \
     	v_mul_n(cylinder->normal, dot(v_sub(contact.orig, cylinder->center), cylinder->normal)));
     	normal = unit_vector(v_sub(contact.orig, center_vec));
@@ -24,7 +21,6 @@ double  ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
     	ratio = dot(contact.dir, normal) / length(normal) * length(contact.dir);
     	ob->color = cylinder->color;
     	ob->ratio = ratio;
-		// printf("!!!!%f %f %f\n", contact.orig.x, contact.orig.y, contact.orig.z);
     	ob->length = length_squared(v_sub(set->camera.location, contact.orig));
 	}
 	else if (ob->hit_part == 1)
@@ -47,23 +43,21 @@ double  ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 		ob->ratio = ratio;
 		ob->length = length_squared(v_sub(set->camera.location, contact.orig));
 	}
-	// printf("@@%f %f %f\n", contact.orig.x ,contact.orig.y, contact.orig.z);
-	// v_add(contact.orig, contact.dir);
-	// t = hit_something(set, contact);
-	// if (t != 0)
-	// {
-	// 	check = at(contact, t);
-	// 	if (set->light.location.y > contact.orig.y)
-	// 	{
-	// 		if (contact.orig.y < check.y && check.y < set->light.location.y)
-	// 			ob->ratio = 0;
-	// 	}
-	// 	else
-	// 	{
-	// 		if (set->light.location.y < check.y && check.y < contact.orig.y)
-	// 			ob->ratio = 0;
-	// 	}
-	// }
+	t = hit_something(set, contact);
+	if (t != 0)
+	{
+		check = at(contact, t);
+		if (set->light.location.y > contact.orig.y)
+		{
+			if (contact.orig.y < check.y && check.y < set->light.location.y)
+				ob->ratio = 0;
+		}
+		else
+		{
+			if (set->light.location.y < check.y && check.y < contact.orig.y)
+				ob->ratio = 0;
+		}
+	}
     return (ratio);
 }
 

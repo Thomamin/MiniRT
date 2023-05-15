@@ -58,8 +58,8 @@ double  hit_cylinder(t_object *ob, t_ray r)
     discriminant = half_b * half_b - a * c;
     t = (- half_b - sqrt(discriminant)) / a;
     if ((discriminant < 0 \
-    || fabs(dot(v_sub(cy->center, at(r, t)), cy->normal)) > cy->height / 2\
-    && !hit_cylinder_cap(cy, ob, r, &t)))
+    || fabs(dot(v_sub(cy->center, at(r, t)), cy->normal)) > cy->height / 2)\
+    && !hit_cylinder_cap(cy, ob, r, &t))
         return (-1.0);
     else
     {

@@ -4,71 +4,28 @@ int	hit_something(t_set *set, t_ray contact)
 {
 	t_object	*ob;
 	double		t;
+	double		near_t;
 	double		length;
-	t_vec		near;
+	double		near_length;
 
+	near_length = -1;
 	ob = set->objects;
 	while (ob)
 	{
-		if (ob->type == 0)
+		t = ob->hit_f(ob, contact);
+		length = length_squared(at(contact, t));
+		if (near_length == -1 || \
+		(t > 0 && near_length > length))
 		{
-			t = hit_sphere(ob, contact);
-			if (t > 0)
-			{
-				ob->check = t;
-				near = at(contact, t);
-				ob->length2 = length_squared(near);
-			}
-			else
-				ob->length2 = 184467440737095516;
-		}
-		else if (ob->type == 1)
-		{
-			t = hit_cylinder(ob, contact);
-			if (t > 0)
-			{
-				ob->check = t;
-				near = at(contact, t);
-				ob->length2 = length_squared(near);
-			}
-			else
-				ob->length2 = 184467440737095516;
-		}
-		else if (ob->type == 2)
-		{
-			t = hit_plane(ob, contact);
-			if (t > 0)
-			{
-				ob->check = t;
-				near = at(contact, t);
-				ob->length2 = length_squared(near);
-			}
-			else
-				ob->length2 = 184467440737095516;
-		}
-		ob = ob->next;
-	}
-	length = -1;
-	ob = set->objects;
-	while (ob)
-	{
-		if (length == -1)
-		{
-			length = ob->length2;
-			t = ob->check;
+			near_t = t;
+			near_length = length;
 		}
 		else
-		{
-			if (length > ob->length2)
-			{
-				t = ob->check;
-				length = ob->length2;
-			}
-		}
+			ob->length2 = 184467440737095516;
 		ob = ob->next;
 	}
 	if (length == 184467440737095516)
 		return (0);
-	return (t);
+	return (near_t);
 }
 

@@ -18,7 +18,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <math.h>
-# include "mlx.h"
+# include "/Users/thomamin/prj/minirt/lib/mlx/mlx.h"
 # include "get_next_line.h"
 
 typedef struct s_vec
