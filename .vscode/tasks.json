@@ -1,0 +1,66 @@
+{
+    "tasks": [
+		{
+			"type": "shell",
+			"label": "Minirt Makefile build",
+			"command": "Make re",
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "build using Makefile"
+		},
+		{
+			"type": "cppbuild",
+			"label": "C/C++: gcc build active file",
+			"command": "/usr/bin/gcc",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-L${workspaceFolder}/lib/mlx",
+				"-lmlx -framework OpenGL -framework AppKit",
+				"-g",
+				"${workspaceFolder}/minirt.c",
+				"${workspaceFolder}/get_next_line.c",
+				"${workspaceFolder}/get_next_line_utils.c",
+				"${workspaceFolder}/ver_cal.c",
+				"${workspaceFolder}/mrt_cam_init.c",
+				"${workspaceFolder}/mrt_hit_obj.c",
+				"${workspaceFolder}/mrt_input.c",
+				"${workspaceFolder}/mrt_ratio.c",
+				"${workspaceFolder}/mrt_ray_color.c",
+				"${workspaceFolder}/mrt_set.c",
+				"${workspaceFolder}/mrt_shadow.c",
+				"${workspaceFolder}/mrt_utils.c",
+				
+				"-o",
+				"${workspaceFolder}/minirt.o",
+				"${workspaceFolder}/get_next_line.o",
+				"${workspaceFolder}/get_next_line_utils.o",
+				"${workspaceFolder}/ver_cal.o",
+				"${workspaceFolder}/mrt_cam_init.o",
+				"${workspaceFolder}/mrt_hit_obj.o",
+				"${workspaceFolder}/mrt_input.o",
+				"${workspaceFolder}/mrt_ratio.o",
+				"${workspaceFolder}/mrt_ray_color.o",
+				"${workspaceFolder}/mrt_set.o",
+				"${workspaceFolder}/mrt_shadow.o",
+				"${workspaceFolder}/mrt_utils.o"
+			],
+			"options": {
+				"cwd": "${fileDirname}"			
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "compiler: /usr/bin/gcc"
+		}
+	],
+    "version": "2.0.0"
+}  
