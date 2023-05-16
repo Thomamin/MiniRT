@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mrt_utils.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dmin <dmin@student.42seoul.kr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/16 13:41:53 by dmin              #+#    #+#             */
+/*   Updated: 2023/05/16 13:41:56 by dmin             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
 t_object	*ft_lstnew(int nb, char *map)
@@ -9,23 +21,11 @@ t_object	*ft_lstnew(int nb, char *map)
 		return (0);
 	ob->type = nb;
 	if (nb == 0)
-	{
-		ob->object = (void *)set_sphere(map);
-		ob->hit_f = hit_sphere;
-		ob->ratio_f = ratio_sp;
-	}
-	if (nb == 1)
-	{
-		ob->object = (void *)set_cylinder(map);
-		ob->hit_f = hit_cylinder;
-		ob->ratio_f = ratio_cy;
-	}
-	if (nb == 2)
-	{
-		ob->object = (void *)set_plane(map);
-		ob->hit_f = hit_plane;
-		ob->ratio_f = ratio_pl;
-	}
+		ob->object = (void *)set_sphere(map, ob);
+	else if (nb == 1)
+		ob->object = (void *)set_cylinder(map, ob);
+	else if (nb == 2)
+		ob->object = (void *)set_plane(map, ob);
 	ob->next = NULL;
 	return (ob);
 }
@@ -58,7 +58,6 @@ void	ft_lstclear(t_object **lst)
 	}
 }
 
-
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	char	*dst;
@@ -69,4 +68,9 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 		return ;
 	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
 	*(unsigned int *)dst = color;
+}
+
+double	degrees_to_radians(double degrees)
+{
+	return (degrees * 3.141529 / 180.0);
 }

@@ -1,88 +1,69 @@
-#include "minirt.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mrt_ray_color.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/16 14:29:38 by migo              #+#    #+#             */
+/*   Updated: 2023/05/16 14:29:39 by migo             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "minirt.h"
 
 int	ray_color(t_ray r, t_set *set)
 {
-	double	t;
+	double		t;
+	double		near_t;
+	double		near_length;
 	t_object	*ob;
-	t_vec		color;
-	t_vec		contact;
-	double		ratio;
-	double		length;
+	t_object	*near;
 
+	near_length = 184467440737095516;
 	ob = set->objects;
 	while (ob)
 	{
 		t = ob->hit_f(ob, r);
-		if (t > 0.0)
-			ob->ratio_f(r, t, ob, set);
-		else
+		ob->length = length(v_sub(set->camera.location, at(r, t)));
+		if (t > 0 && ob->length < near_length)
 		{
-			if (ob->type == 0)
-				ob->length = 184467440737095516;
-			else if (ob->type == 1)
-			{
-				ob->length = 184467440737095516;
-				if (t != -1)
-				 	ob->ratio_f(r, t, ob, set);
-			}
-			else if (ob->type == 2)
-			{
-				color = make_vec(0, 0, 0);
-				ob->length = 184467440737095516;
-			}
+			near = ob;
+			near_t = t;
+			near_length = ob->length;
 		}
 		ob = ob->next;
 	}
-	length = -1;
-	ob = set->objects;
-	while (ob)
-	{
-		if (length == -1)
-		{
-			ratio = ob->ratio;
-			length = ob->length;
-			color = ob->color;
-		}
-		else
-		{
-			if (length > ob->length)
-			{
-				ratio = ob->ratio;
-				length = ob->length;
-				color = ob->color;
-			}
-		}
-		ob = ob->next;
-	}
-	if (length == 184467440737095516)
+	if (near_length == 184467440737095516)
 		return (0);
-	return (set_color(color, ratio, 0.2, set->light.power));
+	near->ratio_f(r, near_t, near, set);
+	return (set_color(near->color, near->ratio * set->light.power, \
+	set->am_light));
 }
 
-int	set_color(t_vec ob_color, double ratio, double light, double power)
+int	set_color(t_vec ob_color, double ratio, t_am_light am)
 {
-	int	color_red;
-	int color_green;
-	int color_blue;
-	int color;
-	double ratio1;
+	int		color_red;
+	int		color_green;
+	int		color_blue;
+	int		color;
+	t_vec	ratio1;
 
 	if (ratio < 0)
 		ratio = 0;
-	ratio1 = (ratio + light) * power;
-	if (ratio1 < 1)
-	{
-		color_red = (int)(ob_color.x * ratio1);
-		color_green = (int)(ob_color.y * ratio1);
-		color_blue = (int)(ob_color.z * ratio1);
-	}
+	ratio1 = v_add_n(v_mul_n(am.color, am.am_light), ratio);
+	if (ratio1.x < 1)
+		color_red = (int)(ob_color.x * ratio1.x);
 	else
-	{
-		color_red = (int)(ob_color.x * (2 - ratio1) + 255 * (ratio1 - 1));
-		color_green = (int)(ob_color.y * (2 - ratio1) + 255 * (ratio1 - 1));
-		color_blue = (int)(ob_color.z * (2 - ratio1) + 255 * (ratio1 - 1));
-	}
+		color_red = (int)(ob_color.x * (2 - ratio1.x) + 255 * (ratio1.x - 1));
+	if (ratio1.y < 1)
+		color_green = (int)(ob_color.y * ratio1.y);
+	else
+		color_green = (int)(ob_color.y * (2 - ratio1.y) + 255 * (ratio1.y - 1));
+	if (ratio1.z < 1)
+		color_blue = (int)(ob_color.z * ratio1.z);
+	else
+		color_blue = (int)(ob_color.z * (2 - ratio1.z) + 255 * (ratio1.z - 1));
 	color = (color_red * 65536 + color_green * 256 + color_blue);
 	return (color);
 }

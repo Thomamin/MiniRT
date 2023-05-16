@@ -6,7 +6,7 @@
 /*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 11:54:18 by migo              #+#    #+#             */
-/*   Updated: 2023/05/12 18:22:55 by migo             ###   ########.fr       */
+/*   Updated: 2023/05/16 14:09:54 by migo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,10 @@
 # include <math.h>
 # include "mlx.h"
 # include "get_next_line.h"
+
+# define SPHERE 0
+# define CYLINDER 1
+# define PLANE 2
 
 typedef struct s_vec
 {
@@ -84,9 +88,9 @@ typedef struct s_camera
 
 typedef struct s_set
 {
-	t_camera	camera;
-	t_light		light;
-	t_am_light	am_light;
+	t_camera		camera;
+	t_light			light;
+	t_am_light		am_light;
 	struct s_object	*objects;
 }		t_set;
 
@@ -100,8 +104,8 @@ typedef struct s_object
 	double			check;
 	t_vec			color;
 	void			*object;
-	double			(*hit_f) (struct s_object*, t_ray);
-	double			(*ratio_f) (t_ray, double, struct s_object*, struct s_set*);
+	double			(*hit_f)(struct s_object*, t_ray);
+	void			(*ratio_f)(t_ray, double, struct s_object*, struct s_set*);
 	struct s_object	*next;
 }		t_object;
 
@@ -112,8 +116,8 @@ typedef struct s_data
 	void	*img;
 	char	*addr;
 	int		bits_per_pixel;
-	int	line_length;
-	int	endian;
+	int		line_length;
+	int		endian;
 }	t_data;
 
 t_vec		make_vec(double x, double y, double z);
@@ -129,35 +133,45 @@ double		length_squared(t_vec e);
 t_vec		at(t_ray r, double t);
 t_vec		unit_vector(t_vec v);
 double		length(t_vec e);
+t_vec		v_add_n(t_vec v1, double n);
 
 t_object	*ft_lstnew(int nb, char *map);
 void		ft_lstadd_front(t_object **lst, t_object *new);
 void		ft_lstclear(t_object **lst);
 
+int			is_file_name_ok(char *filename);
+double		skip_space_comma(char **map);
 double		ft_atof(char **map);
 void		checkmap(char **argv, t_set	*set);
 void		my_mlx_pixel_put(t_data *data, int x, int y, int color);
 
-int			set_color(t_vec ob_color, double ratio, double light, double power);
+int			set_color(t_vec ob_color, double ratio, t_am_light am);
 int			ray_color(t_ray r, t_set *set);
 
+void		check_color(t_vec color);
+void		check_viewpoint(t_vec view_point);
 void		set_camera(t_camera *camera, char *map);
 void		set_light(t_light *light, char *map);
-t_plane		*set_plane(char *map);
-t_cylinder	*set_cylinder(char *map);
-t_sphere	*set_sphere(char *map);
 void		set_am_light(t_am_light *am_light, char *map);
+
+t_plane		*set_plane(char *map, t_object *ob);
+t_cylinder	*set_cylinder(char *map, t_object *ob);
+t_sphere	*set_sphere(char *map, t_object *ob);
 
 t_vec		set_lower_left_corner(t_camera *camera);
 
-double 		hit_plane(t_object *ob, t_ray r);
+double		hit_plane(t_object *ob, t_ray r);
 double		hit_sphere(t_object *ob, t_ray r);
-double  	hit_cylinder(t_object *ob, t_ray r);
-int      	hit_cylinder_cap(t_cylinder *cy, t_object *ob, t_ray ray, double *t);
+double		hit_cylinder(t_object *ob, t_ray r);
+int			hit_cylinder_cap(t_cylinder *cy, t_object *ob, \
+			t_ray ray, double *t);
 int			hit_something(t_set *set, t_ray contact);
 
-double		ratio_cy(t_ray r, double t, t_object *ob, t_set *set);
-double		ratio_sp(t_ray r, double t, t_object *ob, t_set *set);
-double		ratio_pl(t_ray r, double t, t_object *ob, t_set *set);
+void		ratio_cy(t_ray r, double t, t_object *ob, t_set *set);
+void		ratio_sp(t_ray r, double t, t_object *ob, t_set *set);
+void		ratio_pl(t_ray r, double t, t_object *ob, t_set *set);
+
+void		hit_range(t_object *ob, t_set *set, t_ray contact, double t);
+void		set_obj(t_object *ob, t_set *set, t_vec normal, t_ray con);
 
 #endif

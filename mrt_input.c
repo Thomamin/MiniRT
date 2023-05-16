@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mrt_input.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/16 14:25:15 by migo              #+#    #+#             */
+/*   Updated: 2023/05/16 14:25:50 by migo             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
 void	classification_map(char *map, int i, t_set *set)
@@ -32,29 +44,6 @@ double	check_dot(char **map, double flag)
 		}
 	}
 	exit(printf("dot error\n"));
-}
-
-double	skip_space_comma(char **map)
-{
-	int		flag;
-	double	m_flag;
-
-	m_flag = 1;
-	flag = 0;
-	while (*map[0] == ' ' || (*map[0] >= 9 && *map[0] < 13) || *map[0] == ',')
-	{
-		if (*map[0] == ',')
-			flag++;
-		(*map)++;
-	}
-	if (flag > 1)
-		exit(printf(", error"));
-	if (*map[0] == '-')
-	{
-		m_flag = -1;	
-		(*map)++;
-	}
-	return (m_flag);
 }
 
 double	ft_atof(char **map)
@@ -95,6 +84,8 @@ void	checkmap(char **argv, t_set	*set)
 	fd = open(argv[1], O_RDONLY);
 	if (fd == -1)
 		exit(printf("open error\n"));
+	if (!is_file_name_ok(argv[1]))
+		exit(printf("file name error input file extention '.rt' required.\n"));
 	while (1)
 	{
 		i = 0;
@@ -106,5 +97,7 @@ void	checkmap(char **argv, t_set	*set)
 		classification_map(map, i, set);
 		free (map);
 	}
+	if (set->camera.fov == 0)
+		exit(printf("Camera must exist \n"));
 	close(fd);
 }
