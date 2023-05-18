@@ -12,24 +12,6 @@
 
 #include "minirt.h"
 
-void	reset(t_data *img)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (i < WIDTH)
-	{
-		j = 0;
-		while (j < HEIGHT)
-		{
-			my_mlx_pixel_put(img, i, j, 0x00000000);
-			j++;
-		}
-		i++;
-	}
-}
-
 void	render(t_data *data, t_set *set, double width, double height)
 {
 	int		j;
@@ -58,8 +40,11 @@ void	render(t_data *data, t_set *set, double width, double height)
 
 int	main_loop( t_data *img)
 {
-	reset(img);
+	mlx_destroy_image(img->mlx, img->img);
+	img->img = mlx_new_image(img->mlx, WIDTH, HEIGHT);
 	img->set.cam.lower_left_corner = set_lower_left_corner(&img->set.cam);
+	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel,
+			&img->line_length, &img->endian);	
 	render(img, &(img->set), WIDTH, HEIGHT);
 	mlx_put_image_to_window(img->mlx, img->win, img->img, 0, 0);
 	return (0);
