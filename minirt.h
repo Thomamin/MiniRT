@@ -6,7 +6,7 @@
 /*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 11:54:18 by migo              #+#    #+#             */
-/*   Updated: 2023/05/16 14:09:54 by migo             ###   ########.fr       */
+/*   Updated: 2023/05/17 13:17:20 by migo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 # define SPHERE 0
 # define CYLINDER 1
 # define PLANE 2
+# define WIDTH 1200
+# define HEIGHT 800
 
 typedef struct s_vec
 {
@@ -34,7 +36,7 @@ typedef struct s_vec
 
 typedef struct s_light
 {
-	t_vec	location;
+	t_vec	loc;
 	double	power;
 }		t_light;
 
@@ -76,19 +78,19 @@ typedef struct s_cylinder
 	t_vec	color;
 }		t_cylinder;
 
-typedef struct s_camera
+typedef struct s_cam
 {
-	t_vec	location;
-	t_vec	view_point;
+	t_vec	loc;
+	t_vec	vec;
 	t_vec	hor;
 	t_vec	ver;
 	t_vec	lower_left_corner;
 	double	fov;
-}		t_camera;
+}		t_cam;
 
 typedef struct s_set
 {
-	t_camera		camera;
+	t_cam			cam;
 	t_light			light;
 	t_am_light		am_light;
 	struct s_object	*objects;
@@ -106,6 +108,7 @@ typedef struct s_object
 	void			*object;
 	double			(*hit_f)(struct s_object*, t_ray);
 	void			(*ratio_f)(t_ray, double, struct s_object*, struct s_set*);
+	int				rank;
 	struct s_object	*next;
 }		t_object;
 
@@ -118,6 +121,7 @@ typedef struct s_data
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
+	t_set	set;
 }	t_data;
 
 t_vec		make_vec(double x, double y, double z);
@@ -149,8 +153,8 @@ int			set_color(t_vec ob_color, double ratio, t_am_light am);
 int			ray_color(t_ray r, t_set *set);
 
 void		check_color(t_vec color);
-void		check_viewpoint(t_vec view_point);
-void		set_camera(t_camera *camera, char *map);
+void		check_viewpoint(t_vec vec);
+void		set_cam(t_cam *cam, char *map);
 void		set_light(t_light *light, char *map);
 void		set_am_light(t_am_light *am_light, char *map);
 
@@ -158,14 +162,14 @@ t_plane		*set_plane(char *map, t_object *ob);
 t_cylinder	*set_cylinder(char *map, t_object *ob);
 t_sphere	*set_sphere(char *map, t_object *ob);
 
-t_vec		set_lower_left_corner(t_camera *camera);
+t_vec		set_lower_left_corner(t_cam *cam);
 
 double		hit_plane(t_object *ob, t_ray r);
 double		hit_sphere(t_object *ob, t_ray r);
 double		hit_cylinder(t_object *ob, t_ray r);
 int			hit_cylinder_cap(t_cylinder *cy, t_object *ob, \
 			t_ray ray, double *t);
-int			hit_something(t_set *set, t_ray contact);
+int			hit_something(t_set *set, t_ray contact, t_object *obj);
 
 void		ratio_cy(t_ray r, double t, t_object *ob, t_set *set);
 void		ratio_sp(t_ray r, double t, t_object *ob, t_set *set);
@@ -173,5 +177,8 @@ void		ratio_pl(t_ray r, double t, t_object *ob, t_set *set);
 
 void		hit_range(t_object *ob, t_set *set, t_ray contact, double t);
 void		set_obj(t_object *ob, t_set *set, t_vec normal, t_ray con);
+
+void		rt_hook(t_data *img);
+int			rt_close(void *param);
 
 #endif

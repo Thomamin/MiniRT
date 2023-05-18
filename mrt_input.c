@@ -15,7 +15,11 @@
 void	classification_map(char *map, int i, t_set *set)
 {
 	if (map[i] == 'C')
-		set_camera(&set->camera, &map[i]);
+	{	
+		if (set->cam.fov != 0.0)
+			exit(printf("cam must be only one\n"));
+		set_cam(&set->cam, &map[i]);
+	}
 	else if (map[i] == 'A')
 		set_am_light(&set->am_light, &map[i]);
 	else if (map[i] == 'L')
@@ -46,7 +50,7 @@ double	check_dot(char **map, double flag)
 	exit(printf("dot error\n"));
 }
 
-double	ft_atof(char **map)
+double	ft_atof(char **m)
 {
 	double	num;
 	double	flag[2];
@@ -54,24 +58,24 @@ double	ft_atof(char **map)
 
 	num = 0;
 	flag[0] = 0;
-	flag[1] = skip_space_comma(map);
+	flag[1] = skip_space_comma(m);
 	power = 1;
 	while (1)
 	{
-		if (*map[0] <= '9' && *map[0] >= '0')
+		if (**m <= '9' && **m >= '0')
 		{
-			num = num * 10 + (*map[0] - 48);
+			num = num * 10 + (**m - 48);
 			if (flag[0] == 1)
 				power *= 10;
 		}
-		else if (*map[0] == '.')
-			flag[0] = check_dot(map, flag[0]);
+		else if (**m == '.')
+			flag[0] = check_dot(m, flag[0]);
 		else
 			break ;
-		(*map)++;
+		(*m)++;
 	}
-	if (*map[0] != ' ' && *map[0] != '\0' && *map[0] != '\n' && *map[0] != ',')
-		exit(printf("%c is wrong parameter", *map[0]));
+	if (**m != ' ' && **m != '\t' && **m != 0 && **m != '\n' && **m != ',')
+		exit(printf("%c is wrong parameter", **m));
 	return (num * flag[1] / power);
 }
 
@@ -97,7 +101,7 @@ void	checkmap(char **argv, t_set	*set)
 		classification_map(map, i, set);
 		free (map);
 	}
-	if (set->camera.fov == 0)
-		exit(printf("Camera must exist \n"));
+	if (set->cam.fov == 0)
+		exit(printf("cam must exist \n"));
 	close(fd);
 }

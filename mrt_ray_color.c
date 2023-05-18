@@ -25,7 +25,7 @@ int	ray_color(t_ray r, t_set *set)
 	while (ob)
 	{
 		t = ob->hit_f(ob, r);
-		ob->length = length(v_sub(set->camera.location, at(r, t)));
+		ob->length = length(v_sub(set->cam.loc, at(r, t)));
 		if (t > 0 && ob->length < near_length)
 		{
 			near = ob;

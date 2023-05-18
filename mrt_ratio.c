@@ -6,7 +6,7 @@
 /*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/16 14:03:25 by migo              #+#    #+#             */
-/*   Updated: 2023/05/16 14:33:05 by migo             ###   ########.fr       */
+/*   Updated: 2023/05/17 13:36:34 by migo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ void	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 
 	cy = ob->object;
 	contact.orig = at(r, t);
-	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
-	contact.orig = v_add(contact.orig, contact.dir);
+	contact.dir = unit_vector(v_sub(set->light.loc, contact.orig));
+	contact.orig = v_sub(contact.orig, contact.dir);
 	if (ob->hit_part == 0)
 	{
 		center_vec = v_add(cy->center, \
@@ -37,7 +37,7 @@ void	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 		normal = v_mul_n(cy->normal, -1);
 		set_obj(ob, set, normal, contact);
 	}
-	hit_range(ob, set, contact, hit_something(set, contact));
+	hit_range(ob, set, contact, hit_something(set, contact, ob));
 }
 
 void	ratio_sp(t_ray r, double t, t_object *ob, t_set *set)
@@ -49,22 +49,26 @@ void	ratio_sp(t_ray r, double t, t_object *ob, t_set *set)
 	sphere = ob->object;
 	contact.orig = at(r, t);
 	normal = unit_vector(v_sub(at(r, t), sphere->center));
-	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
-	contact.orig = v_add(contact.orig, contact.dir);
+	contact.dir = unit_vector(v_sub(set->light.loc, contact.orig));
+	contact.orig = v_sub(contact.orig, contact.dir);
 	set_obj(ob, set, normal, contact);
-	t = hit_something(set, contact);
-	hit_range(ob, set, contact, hit_something(set, contact));
+	hit_range(ob, set, contact, hit_something(set, contact, ob));
 }
 
 void	ratio_pl(t_ray r, double t, t_object *ob, t_set *set)
 {
 	t_ray	contact;
 	t_plane	*pl;
+	t_vec	normal;
 
 	pl = ob->object;
 	contact.orig = at(r, t);
-	contact.dir = unit_vector(v_sub(set->light.location, contact.orig));
-	contact.orig = v_add(contact.orig, contact.dir);
-	set_obj(ob, set, pl->normal, contact);
-	hit_range(ob, set, contact, hit_something(set, contact));
+	contact.dir = unit_vector(v_sub(set->light.loc, contact.orig));
+	contact.orig = v_sub(contact.orig, contact.dir);
+	if (dot(pl->normal, v_sub(set->cam.loc, pl->center)) < 0)
+		normal = v_mul_n(pl->normal, -1);
+	else
+		normal = pl->normal;
+	set_obj(ob, set, normal, contact);
+	hit_range(ob, set, contact, hit_something(set, contact, ob));
 }

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   mrt_shadow.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmin <dmin@student.42seoul.kr>             +#+  +:+       +#+        */
+/*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/16 13:42:57 by dmin              #+#    #+#             */
-/*   Updated: 2023/05/16 13:43:45 by dmin             ###   ########.fr       */
+/*   Updated: 2023/05/17 13:17:53 by migo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-int	hit_something(t_set *set, t_ray contact)
+int	hit_something(t_set *set, t_ray contact, t_object *obj)
 {
 	t_object	*ob;
 	double		t;
@@ -26,6 +26,8 @@ int	hit_something(t_set *set, t_ray contact)
 	{
 		t = ob->hit_f(ob, contact);
 		length = length_squared(at(contact, t));
+		if (obj->rank == ob->rank)
+			length = 184467440737095516;
 		if (t > 0 && near_length > length)
 		{
 			near_t = t;

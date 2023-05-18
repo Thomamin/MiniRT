@@ -22,29 +22,29 @@ void	check_color(t_vec color)
 		exit(printf("color error\n"));
 }
 
-void	check_viewpoint(t_vec view_point)
+void	check_viewpoint(t_vec vec)
 {
-	if (view_point.x < -1 || view_point.x > 1)
+	if (vec.x < -1 || vec.x > 1)
 		exit(printf("vector error\n"));
-	if (view_point.y < -1 || view_point.y > 1)
+	if (vec.y < -1 || vec.y > 1)
 		exit(printf("vector error\n"));
-	if (view_point.z < -1 || view_point.z > 1)
+	if (vec.z < -1 || vec.z > 1)
 		exit(printf("vector error\n"));
-	if (length(view_point) == 0)
+	if (length(vec) == 0)
 		exit(printf("vector error\n"));
 }
 
-void	set_camera(t_camera *camera, char *map)
+void	set_cam(t_cam *cam, char *map)
 {
 	map++;
 	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
 		map++;
-	camera->location = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
-	camera->view_point = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
-	camera->fov = tan(degrees_to_radians(ft_atof(&map) / 2.0));
-	if (camera->fov < 0 || camera->fov > 180)
+	cam->loc = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	cam->vec = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	cam->fov = tan(degrees_to_radians(ft_atof(&map) / 2.0));
+	if (cam->fov < 0 || cam->fov > 180)
 		exit(printf("fov error\n"));
-	check_viewpoint(camera->view_point);
+	check_viewpoint(cam->vec);
 	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
 		map++;
 	if (map[0] != '\0')
@@ -56,7 +56,7 @@ void	set_light(t_light *light, char *map)
 	map++;
 	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
 		map++;
-	light->location = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	light->loc = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	light->power = ft_atof(&map);
 	if (light->power < 0 || light->power > 1)
 		exit(printf("light power error\n"));

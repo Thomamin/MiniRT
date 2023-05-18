@@ -1,21 +1,21 @@
 NAME = minirt
-SRCS = minirt.c get_next_line.c get_next_line_utils.c ver_cal.c \
-	   mrt_cam_init.c mrt_hit_obj.c mrt_input.c mrt_ratio.c \
-	   mrt_ray_color.c mrt_set.c mrt_shadow.c mrt_utils.c
+SRCS =	minirt.c get_next_line.c get_next_line_utils.c \
+		mrt_hook.c vec_cal.c vec_cal2.c vec_cal3.c	\
+		mrt_cam_init.c mrt_hit_obj.c mrt_input.c mrt_input2.c mrt_ratio.c \
+		mrt_ray_color.c mrt_set.c mrt_set_obj.c mrt_shadow.c mrt_utils.c mrt_set_ratio.c
 OBJS = $(SRCS:.c=.o)
-MLX = -L/users/thomamin/prj/minirt/lib/mlx -lmlx 
-OPENGL = -framework OpenGL -framework AppKit
+CCOP = -Wall -Wextra -Werror
 
 all : $(NAME)
 
 %.o: %.c
-	$(CC) -g -c $< -o $@
+	$(CC) $(CCOP) -c $< -o $@
 
 $(NAME) : $(OBJS)
-	cc $(MLX) $(OPENGL) $(OBJS) -o $(NAME)
+	cc -lmlx -framework OpenGL -framework Appkit $(OBJS) -o $(NAME)
 
 bonus : $(OBJS)
-	cc $(MLX) $(OPENGL) $(OBJS) -o $(NAME)
+	cc -lmlx -framework OpenGL -framework Appkit $(OBJS) -o $(NAME)
 
 clean :
 	rm -rf $(OBJS)

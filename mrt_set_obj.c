@@ -22,6 +22,8 @@ t_sphere	*set_sphere(char *map, t_object *ob)
 	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
 		map++;
 	sphere = malloc(sizeof(t_sphere) * 1);
+	if (!sphere)
+		exit(printf("malloc error\n"));
 	sphere->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	sphere->radius = ft_atof(&map);
 	sphere->color = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
@@ -43,6 +45,8 @@ t_plane	*set_plane(char *map, t_object *ob)
 	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
 		map++;
 	plane = malloc(sizeof(t_plane) * 1);
+	if (!plane)
+		exit(printf("malloc error\n"));
 	plane->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	plane->normal = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	plane->color = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
@@ -65,6 +69,8 @@ t_cylinder	*set_cylinder(char *map, t_object *ob)
 	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
 		map++;
 	cy = malloc(sizeof(t_cylinder) * 1);
+	if (!cy)
+		exit(printf("malloc error\n"));
 	cy->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	cy->normal = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
 	cy->radius = ft_atof(&map);

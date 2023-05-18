@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mrt_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmin <dmin@student.42seoul.kr>             +#+  +:+       +#+        */
+/*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/16 13:41:53 by dmin              #+#    #+#             */
-/*   Updated: 2023/05/16 13:41:56 by dmin             ###   ########.fr       */
+/*   Updated: 2023/05/17 13:36:50 by migo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,11 @@
 t_object	*ft_lstnew(int nb, char *map)
 {
 	t_object	*ob;
+	static int	i;
 
 	ob = (t_object *)malloc(sizeof(t_object) * 1);
 	if (ob == 0)
-		return (0);
+		exit(printf("malloc error\n"));
 	ob->type = nb;
 	if (nb == 0)
 		ob->object = (void *)set_sphere(map, ob);
@@ -26,6 +27,8 @@ t_object	*ft_lstnew(int nb, char *map)
 		ob->object = (void *)set_cylinder(map, ob);
 	else if (nb == 2)
 		ob->object = (void *)set_plane(map, ob);
+	ob->rank = i;
+	i++;
 	ob->next = NULL;
 	return (ob);
 }
@@ -62,10 +65,6 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	char	*dst;
 
-	if (x > 1200 || x < 0)
-		return ;
-	if (y > 1200 || y < 0)
-		return ;
 	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
 	*(unsigned int *)dst = color;
 }

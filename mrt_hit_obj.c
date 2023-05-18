@@ -63,7 +63,6 @@ double	hit_cylinder(t_object *ob, t_ray r)
 	double		t;
 	t_cylinder	*cy;
 
-	ob->hit_part = 0;
 	cy = (t_cylinder *) ob->object;
 	r.dir = unit_vector(r.dir);
 	oc = v_sub(r.orig, cy->center);
@@ -72,11 +71,13 @@ double	hit_cylinder(t_object *ob, t_ray r)
 	coe[2] = -(pow(cy->radius, 2) - dot(oc, oc) + pow(dot(oc, cy->normal), 2));
 	discriminant = coe[1] * coe[1] - coe[0] * coe[2];
 	t = (-coe[1] - sqrt(discriminant)) / coe[0];
+	if (hit_cylinder_cap(cy, ob, r, &t))
+		return (t);
+	ob->hit_part = 0;
 	if (t < 0)
 		t = (-coe[1] + sqrt(discriminant)) / coe[0];
-	if ((discriminant > 0 \
-	&& fabs(dot(v_sub(cy->center, at(r, t)), cy->normal)) <= cy->height / 2) \
-	|| hit_cylinder_cap(cy, ob, r, &t))
+	if ((discriminant > 0 && \
+	fabs(dot(v_sub(cy->center, at(r, t)), cy->normal)) <= cy->height / 2))
 		return (t);
 	else
 		return (-1.0);

@@ -12,25 +12,25 @@
 
 #include "minirt.h"
 
-t_vec	z_direction(t_camera *camera, t_vec z_axis)
+t_vec	z_direction(t_cam *cam, t_vec z_axis)
 {
 	t_vec	horizontal;
 	t_vec	vertical;
 	double	t;
 
 	horizontal = make_vec(1, 0, 0);
-	t = sqrt(pow(camera->fov, 2) / dot(horizontal, horizontal));
+	t = sqrt(pow(cam->fov, 2) / dot(horizontal, horizontal));
 	horizontal = v_mul_n(horizontal, t);
-	camera->hor = horizontal;
+	cam->hor = horizontal;
 	vertical = make_vec(0, 1, 0);
-	t = sqrt(pow(camera->fov, 2) / dot(vertical, vertical));
-	vertical = v_mul_n(vertical, t * 800 / 1200);
-	camera->ver = vertical;
-	return (v_sub(camera->location, v_add(v_add(v_div_n(horizontal, 2),
+	t = sqrt(pow(cam->fov, 2) / dot(vertical, vertical));
+	vertical = v_mul_n(vertical, t * HEIGHT / 1200);
+	cam->ver = vertical;
+	return (v_sub(cam->loc, v_add(v_add(v_div_n(horizontal, 2),
 					v_div_n(vertical, 2)), z_axis)));
 }
 
-t_vec	set_lower_left_corner(t_camera *camera)
+t_vec	set_lower_left_corner(t_cam *cam)
 {
 	t_vec	z;
 	t_vec	z_axis;
@@ -39,18 +39,18 @@ t_vec	set_lower_left_corner(t_camera *camera)
 	double	t;
 
 	z = make_vec(0, 0, 1);
-	z_axis = make_vec(-camera->view_point.x, \
-			-camera->view_point.y, -camera->view_point.z);
-	horizontal = cross(camera->view_point, z);
-	t = sqrt(pow(camera->fov, 2) / dot(horizontal, horizontal));
-	horizontal = v_mul_n(horizontal, t * 1200 / 800);
-	camera->hor = horizontal;
-	vertical = cross(horizontal, camera->view_point);
-	t = sqrt(pow(camera->fov, 2) / dot(vertical, vertical));
+	z_axis = make_vec(-cam->vec.x, \
+			-cam->vec.y, -cam->vec.z);
+	horizontal = cross(cam->vec, z);
+	t = sqrt(pow(cam->fov, 2) / dot(horizontal, horizontal));
+	horizontal = v_mul_n(horizontal, t * 1200 / HEIGHT);
+	cam->hor = horizontal;
+	vertical = cross(horizontal, cam->vec);
+	t = sqrt(pow(cam->fov, 2) / dot(vertical, vertical));
 	vertical = v_mul_n(vertical, t);
-	camera->ver = vertical;
+	cam->ver = vertical;
 	if (z_axis.x == 0 && z_axis.y == 0)
-		return (z_direction(camera, z_axis));
-	return (v_sub(camera->location, v_add(v_add(v_div_n(horizontal, 2),
+		return (z_direction(cam, z_axis));
+	return (v_sub(cam->loc, v_add(v_add(v_div_n(horizontal, 2),
 					v_div_n(vertical, 2)), z_axis)));
 }
