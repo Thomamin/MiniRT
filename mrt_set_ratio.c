@@ -12,6 +12,21 @@
 
 #include "minirt.h"
 
+int	check_in_cn(t_cone *cn, t_set *set, t_vec normal)
+{
+	double		check;
+	t_vec		center;
+
+	check = dot(v_sub(set->cam.loc, cn->center), normal);
+	if (check < cn->height)
+	{
+		center = v_add(cn->center, v_mul_n(normal, check));
+		if (length(v_sub(center, set->cam.loc)) < cn->radius) // 수정필요
+			return (1);
+	}
+	return (0);	
+}
+
 int	check_in_sp(t_sphere *sphere, t_set *set, t_ray contact)
 {
 	if (length(v_sub(set->cam.loc, contact.orig)) < sphere->radius)

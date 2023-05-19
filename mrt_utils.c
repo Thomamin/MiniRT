@@ -27,6 +27,8 @@ t_object	*ft_lstnew(int nb, char *map)
 		ob->object = (void *)set_cylinder(map, ob);
 	else if (nb == 2)
 		ob->object = (void *)set_plane(map, ob);
+	else if (nb == 3)
+		ob->object = (void *)set_cone(map, ob);
 	ob->rank = i;
 	i++;
 	ob->next = NULL;

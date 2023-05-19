@@ -40,6 +40,29 @@ void	ratio_cy(t_ray r, double t, t_object *ob, t_set *set)
 	hit_range(ob, set, contact, hit_something(set, contact, ob));
 }
 
+void	ratio_cn(t_ray r, double t, t_object *ob, t_set *set)
+{
+	t_ray		contact;
+	t_vec		normal;
+	t_vec		center_vec;
+	t_cone		*cn;
+
+	cn = ob->object;
+	contact.orig = at(r, t);
+	contact.dir = unit_vector(v_sub(set->light.loc, contact.orig));
+	contact.orig = v_sub(contact.orig, contact.dir);
+	if (ob->hit_part == 0)
+	{
+		center_vec = v_add(cn->center, \
+		v_mul_n(cn->normal, dot(v_sub(contact.orig, cn->center), cn->normal)));
+		normal = unit_vector(v_sub(contact.orig, center_vec));
+		set_obj(ob, set, normal, contact);
+	}
+	else 
+		set_obj(ob, set, cn->normal, contact);
+	hit_range(ob, set, contact, hit_something(set, contact, ob));	
+}
+
 void	ratio_sp(t_ray r, double t, t_object *ob, t_set *set)
 {
 	t_ray		contact;

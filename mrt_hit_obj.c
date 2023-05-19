@@ -129,3 +129,29 @@ int	hit_cylinder_cap(t_cylinder *cy, t_object *ob, t_ray ray, double *t)
 	}
 	return (0);
 }
+
+double hit_cone(t_object *ob, t_ray r)
+{
+	t_vec		oc;
+	double		coe[3];
+	double		discriminant;
+	double		t;
+	t_cone	*cn;
+
+	cn = (t_cone *) ob->object;
+	r.dir = unit_vector(r.dir);
+	oc = v_sub(r.orig, cn->center);
+	coe[0] = -(pow(dot(r.dir, cn->normal), 2) - pow(cn->height, 2) / (pow(cn->height, 2) + pow(cn->radius, 2)));
+	coe[1] = -(dot(oc, cn->normal) * dot(r.dir, cn->normal) - dot(oc, r.dir) * pow(cn->height, 2) / (pow(cn->height, 2) + pow(cn->radius, 2)));
+	coe[2] = -(pow(dot(oc, cn->normal), 2) - dot(oc, oc) * pow(cn->height, 2) / (pow(cn->height, 2) + pow(cn->radius, 2)));
+	discriminant = coe[1] * coe[1] - coe[0] * coe[2];
+	t = (-coe[1] - sqrt(discriminant)) / coe[0];
+	if (t < 0)
+		t = (-coe[1] + sqrt(discriminant)) / coe[0];
+	if (discriminant > 0 && \
+		dot(v_sub(cn->center, at(r, t)), cn->normal) <= cn->height &&
+		dot(v_sub(cn->center, at(r, t)), cn->normal) >= 0)
+		return (t);
+	else
+		return (-1.0);
+}
