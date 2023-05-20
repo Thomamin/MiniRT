@@ -58,8 +58,11 @@ void	ratio_cn(t_ray r, double t, t_object *ob, t_set *set)
 		normal = unit_vector(v_sub(contact.orig, center_vec));
 		set_obj(ob, set, normal, contact);
 	}
-	else 
-		set_obj(ob, set, cn->normal, contact);
+	else if (ob->hit_part == 1)
+	{
+		normal = v_mul_n(cn->normal, -1);
+		set_obj(ob, set, normal, contact);
+	}
 	hit_range(ob, set, contact, hit_something(set, contact, ob));	
 }
 

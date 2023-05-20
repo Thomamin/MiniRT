@@ -130,6 +130,27 @@ int	hit_cylinder_cap(t_cylinder *cy, t_object *ob, t_ray ray, double *t)
 	return (0);
 }
 
+
+int	hit_cone_bottom(t_cone *cn, t_object *ob, t_ray ray, double *t)
+{
+	t_vec	center;
+	double	coe;
+	double	constant;
+
+	coe = dot(ray.dir, cn->normal);
+	if (coe == 0)
+		return (0);
+	center = v_add(cn->center, v_mul_n(cn->normal, -cn->height));
+	constant = dot(cn->normal, v_sub(center, ray.orig));
+	if (close_cylinder_cap(ray, constant / coe, dot(cn->normal, v_sub(cn->center, ray.orig)) / coe))
+	{
+		ob->hit_part = 1;
+		if (cn->radius >= length(v_sub(center, at(ray, constant / coe))))
+			return (*t = constant / coe);
+	}
+	return (0);
+}
+
 double hit_cone(t_object *ob, t_ray r)
 {
 	t_vec		oc;
@@ -146,8 +167,11 @@ double hit_cone(t_object *ob, t_ray r)
 	coe[2] = -(pow(dot(oc, cn->normal), 2) - dot(oc, oc) * pow(cn->height, 2) / (pow(cn->height, 2) + pow(cn->radius, 2)));
 	discriminant = coe[1] * coe[1] - coe[0] * coe[2];
 	t = (-coe[1] - sqrt(discriminant)) / coe[0];
+	if (hit_cone_bottom(cn, ob, r, &t))
+		return (t);
+	ob->hit_part = 0;
 	if (t < 0)
-		t = (-coe[1] + sqrt(discriminant)) / coe[0];
+		t = (-coe[1] - sqrt(discriminant)) / coe[0];
 	if (discriminant > 0 && \
 		dot(v_sub(cn->center, at(r, t)), cn->normal) <= cn->height &&
 		dot(v_sub(cn->center, at(r, t)), cn->normal) >= 0)

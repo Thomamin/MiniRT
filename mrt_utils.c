@@ -21,13 +21,13 @@ t_object	*ft_lstnew(int nb, char *map)
 	if (ob == 0)
 		exit(printf("malloc error\n"));
 	ob->type = nb;
-	if (nb == 0)
+	if (nb == SPHERE)
 		ob->object = (void *)set_sphere(map, ob);
-	else if (nb == 1)
+	else if (nb == CYLINDER)
 		ob->object = (void *)set_cylinder(map, ob);
-	else if (nb == 2)
+	else if (nb == PLANE)
 		ob->object = (void *)set_plane(map, ob);
-	else if (nb == 3)
+	else if (nb == CONE)
 		ob->object = (void *)set_cone(map, ob);
 	ob->rank = i;
 	i++;

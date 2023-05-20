@@ -18,12 +18,14 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <math.h>
-# include "mlx.h"
+# include "/Users/thomamin/prj/minirt/lib/mlx/mlx.h"
 # include "get_next_line.h"
 
 # define SPHERE 0
 # define CYLINDER 1
 # define PLANE 2
+# define CONE 3
+
 # define WIDTH 1200
 # define HEIGHT 800
 
@@ -66,15 +68,21 @@ typedef struct s_plane
 	t_vec	color;
 }		t_plane;
 
+typedef struct s_cone
+{
+	t_vec	center;
+	t_vec	normal;
+	double	height;
+	double	radius;
+	t_vec	color;
+}		t_cone;
+
 typedef struct s_cylinder
 {
 	t_vec	center;
 	t_vec	normal;
 	double	height;
 	double	radius;
-	t_vec	top;
-	t_vec	botton;
-	t_vec	h;
 	t_vec	color;
 }		t_cylinder;
 
@@ -161,12 +169,14 @@ void		set_am_light(t_am_light *am_light, char *map);
 t_plane		*set_plane(char *map, t_object *ob);
 t_cylinder	*set_cylinder(char *map, t_object *ob);
 t_sphere	*set_sphere(char *map, t_object *ob);
+t_cone		*set_cone(char *map, t_object *ob);
 
 t_vec		set_lower_left_corner(t_cam *cam);
 
 double		hit_plane(t_object *ob, t_ray r);
 double		hit_sphere(t_object *ob, t_ray r);
 double		hit_cylinder(t_object *ob, t_ray r);
+double		hit_cone(t_object *ob, t_ray r);			
 int			hit_cylinder_cap(t_cylinder *cy, t_object *ob, \
 			t_ray ray, double *t);
 int			hit_something(t_set *set, t_ray contact, t_object *obj);
@@ -174,6 +184,7 @@ int			hit_something(t_set *set, t_ray contact, t_object *obj);
 void		ratio_cy(t_ray r, double t, t_object *ob, t_set *set);
 void		ratio_sp(t_ray r, double t, t_object *ob, t_set *set);
 void		ratio_pl(t_ray r, double t, t_object *ob, t_set *set);
+void		ratio_cn(t_ray r, double t, t_object *ob, t_set *set);
 
 void		hit_range(t_object *ob, t_set *set, t_ray contact, double t);
 void		set_obj(t_object *ob, t_set *set, t_vec normal, t_ray con);

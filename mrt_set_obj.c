@@ -111,5 +111,4 @@ t_cone	*set_cone(char *map, t_object *ob)
 	if (map[0] != '\0')
 		exit(printf("%c is wrong parameter\n", map[0]));
 	return (cn);
-
 }
