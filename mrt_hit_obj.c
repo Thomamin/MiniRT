@@ -197,9 +197,9 @@ double	hit_hyper(t_object *ob, t_ray r)
 	r.dir = unit_vector(r.dir);
 	oc = v_sub(r.orig, hy->center);
 	
-	coe[0] = -(pow(hy->a * r.dir.x, 2) + pow(hy->a * r.dir.y, 2) - pow(hy->c * r.dir.z, 2));
-	coe[1] = -(2 * (hy->b * hy->b * oc.x * r.dir.x + hy->a * hy->a * oc.y * r.dir.y - hy->c * hy->c * oc.z * r.dir.z));
-	coe[2] = -(pow(hy->b * oc.x, 2) + pow(hy->a * oc.y, 2) - pow(hy->c * oc.z, 2) - pow(hy->a * hy->b, 2));
+	coe[0] = (pow(hy->a * r.dir.x, 2) + pow(hy->a * r.dir.y, 2) - pow(hy->c * r.dir.z, 2));
+	coe[1] = (2 * (hy->b * hy->b * oc.x * r.dir.x + hy->a * hy->a * oc.y * r.dir.y - hy->c * hy->c * oc.z * r.dir.z));
+	coe[2] = (pow(hy->b * oc.x, 2) + pow(hy->a * oc.y, 2) - pow(hy->c * oc.z, 2) - pow(hy->a * hy->b, 2));
 	
 	discriminant = coe[1] * coe[1] - 4 * coe[0] * coe[2];
 	t = (-coe[1] - sqrt(discriminant)) / (2 * coe[0]);
