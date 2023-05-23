@@ -29,6 +29,8 @@ t_object	*ft_lstnew(int nb, char *map)
 		ob->object = (void *)set_plane(map, ob);
 	else if (nb == CONE)
 		ob->object = (void *)set_cone(map, ob);
+	else if (nb == HYPER)
+		ob->object = (void *)set_hyper(map, ob);
 	ob->rank = i;
 	i++;
 	ob->next = NULL;

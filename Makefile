@@ -5,7 +5,6 @@ SRCS =	minirt.c get_next_line.c get_next_line_utils.c \
 		mrt_ray_color.c mrt_set.c mrt_set_obj.c mrt_shadow.c mrt_utils.c mrt_set_ratio.c
 OBJS = $(SRCS:.c=.o)
 CCOP = -Wall -Wextra -Werror
-MLX = -L/users/thomamin/prj/minirt/lib/mlx -lmlx
 
 all : $(NAME)
 
@@ -13,7 +12,7 @@ all : $(NAME)
 	$(CC) $(CCOP) -c $< -o $@
 
 $(NAME) : $(OBJS)
-	cc $(MLX) -framework OpenGL -framework Appkit $(OBJS) -o $(NAME)
+	cc -lmlx -framework OpenGL -framework Appkit $(OBJS) -o $(NAME)
 
 bonus : $(OBJS)
 	cc -lmlx -framework OpenGL -framework Appkit $(OBJS) -o $(NAME)

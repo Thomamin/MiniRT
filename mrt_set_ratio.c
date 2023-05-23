@@ -12,6 +12,21 @@
 
 #include "minirt.h"
 
+int	check_in_hy(t_hyper *hy, t_set *set, t_vec normal)
+{
+	double		check;
+	t_vec		center;
+
+	check = dot(v_sub(set->cam.loc, hy->center), normal);
+	if (check < hy->height)
+	{
+		center = v_add(hy->center, v_mul_n(normal, check));
+		if (length(v_sub(center, set->cam.loc)) < 1 - hy->height)
+			return (1);
+	}
+	return (0);
+}
+
 int	check_in_cn(t_cone *cn, t_set *set, t_vec normal)
 {
 	double		check;
@@ -24,7 +39,7 @@ int	check_in_cn(t_cone *cn, t_set *set, t_vec normal)
 		if (length(v_sub(center, set->cam.loc)) < 1 - cn->height)
 			return (1);
 	}
-	return (0);	
+	return (0);
 }
 
 int	check_in_sp(t_sphere *sphere, t_set *set, t_ray contact)
@@ -53,7 +68,7 @@ void	hit_range(t_object *ob, t_set *set, t_ray contact, double t)
 {
 	t_vec	check;
 
-	if (t > 0)
+	if ((int)t > 0)
 	{
 		check = at(contact, t);
 		if (set->light.loc.x > contact.orig.x)
@@ -75,6 +90,7 @@ void	set_obj(t_object *ob, t_set *set, t_vec normal, t_ray con)
 	t_cylinder	*cy;
 	t_plane		*pl;
 	t_cone		*cn;
+	t_hyper		*hy;
 
 	if (ob->type == SPHERE)
 	{
@@ -99,9 +115,16 @@ void	set_obj(t_object *ob, t_set *set, t_vec normal, t_ray con)
 	{
 		cn = ob->object;
 		ob->color = cn->color;
-		 if (check_in_cn(cn, set, normal))
-		 	normal = v_mul_n(normal, -1);
+		if (check_in_cn(cn, set, normal))
+			normal = v_mul_n(normal, -1);
 	}
+	if (ob->type == HYPER)
+	{
+		hy = ob->object;
+		ob->color = hy->color;
+		if (check_in_hy(hy, set, normal))
+			normal = v_mul_n(normal, -1);
+	}	
 	ob->ratio = dot(con.dir, normal) / length(normal) * length(con.dir);
 	ob->length = length_squared(v_sub(set->cam.loc, con.orig));
 }

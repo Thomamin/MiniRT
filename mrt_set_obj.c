@@ -112,3 +112,32 @@ t_cone	*set_cone(char *map, t_object *ob)
 		exit(printf("%c is wrong parameter\n", map[0]));
 	return (cn);
 }
+
+t_hyper	*set_hyper(char *map, t_object *ob)
+{
+	t_hyper	*hy;
+
+	ob->hit_f = hit_hyper;
+	ob->ratio_f = ratio_hy;
+	map = map + 2;
+	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
+		map++;
+	hy = malloc(sizeof(t_hyper) * 1);
+	if (!hy)
+		exit(printf("malloc error\n"));
+	hy->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	hy->normal = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	hy->a = ft_atof(&map);
+	hy->b = ft_atof(&map);
+	hy->c = ft_atof(&map);
+	hy->height = ft_atof(&map);
+	hy->color = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	check_viewpoint(hy->normal);
+	hy->normal = unit_vector(hy->normal);
+	check_color(hy->color);
+	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
+		map++;
+	if (map[0] != '\0')
+		exit(printf("%c is wrong parameter\n", map[0]));
+	return (hy);
+}

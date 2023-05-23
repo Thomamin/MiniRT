@@ -16,7 +16,7 @@ void	classification_map(char *map, int i, t_set *set)
 {
 	if (map[i] == 'C')
 	{	
-		if (set->cam.fov > 0.001)
+		if ((int)set->cam.fov != 0)
 			exit(printf("cam must be only one\n"));
 		set_cam(&set->cam, &map[i]);
 	}
@@ -32,6 +32,8 @@ void	classification_map(char *map, int i, t_set *set)
 		ft_lstadd_front(&set->objects, ft_lstnew(CYLINDER, &map[i]));
 	else if (map[i] == 'c' && map[i + 1] == 'n')
 		ft_lstadd_front(&set->objects, ft_lstnew(CONE, &map[i]));
+	else if (map[i] == 'h' && map[i + 1] == 'y')
+		ft_lstadd_front(&set->objects, ft_lstnew(HYPER, &map[i]));
 	else
 	{
 		if (map[i] != '\0')

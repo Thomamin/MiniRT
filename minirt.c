@@ -44,7 +44,7 @@ int	main_loop( t_data *img)
 	img->img = mlx_new_image(img->mlx, WIDTH, HEIGHT);
 	img->set.cam.lower_left_corner = set_lower_left_corner(&img->set.cam);
 	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel,
-			&img->line_length, &img->endian);	
+			&img->line_length, &img->endian);
 	render(img, &(img->set), WIDTH, HEIGHT);
 	mlx_put_image_to_window(img->mlx, img->win, img->img, 0, 0);
 	return (0);

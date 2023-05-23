@@ -24,7 +24,7 @@ t_vec	z_direction(t_cam *cam, t_vec z_axis)
 	cam->hor = horizontal;
 	vertical = make_vec(0, 1, 0);
 	t = sqrt(pow(cam->fov, 2) / dot(vertical, vertical));
-	vertical = v_mul_n(vertical, t * HEIGHT / 1200);
+	vertical = v_mul_n(vertical, t * HEIGHT / WIDTH);
 	cam->ver = vertical;
 	return (v_sub(cam->loc, v_add(v_add(v_div_n(horizontal, 2),
 					v_div_n(vertical, 2)), z_axis)));
@@ -43,7 +43,7 @@ t_vec	set_lower_left_corner(t_cam *cam)
 			-cam->vec.y, -cam->vec.z);
 	horizontal = cross(cam->vec, z);
 	t = sqrt(pow(cam->fov, 2) / dot(horizontal, horizontal));
-	horizontal = v_mul_n(horizontal, t * 1200 / HEIGHT);
+	horizontal = v_mul_n(horizontal, t * WIDTH / HEIGHT);
 	cam->hor = horizontal;
 	vertical = cross(horizontal, cam->vec);
 	t = sqrt(pow(cam->fov, 2) / dot(vertical, vertical));

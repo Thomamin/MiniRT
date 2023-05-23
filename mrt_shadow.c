@@ -12,7 +12,7 @@
 
 #include "minirt.h"
 
-int	hit_something(t_set *set, t_ray contact, t_object *obj)
+double	hit_something(t_set *set, t_ray contact, t_object *obj)
 {
 	t_object	*ob;
 	double		t;
