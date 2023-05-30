@@ -1,16 +1,83 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   mrt_hit_obj.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/16 14:01:10 by migo              #+#    #+#             */
-/*   Updated: 2023/05/16 14:24:59 by migo             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
-#include "minirt.h"
+#include "minirt_bonus.h"
+
+int	hit_cone_bottom(t_cone *cn, t_object *ob, t_ray ray, double *t)
+{
+	t_vec	center;
+	double	coe;
+	double	constant;
+
+	coe = dot(ray.dir, cn->normal);
+	if (coe == 0)
+		return (0);
+	center = v_add(cn->center, v_mul_n(cn->normal, -cn->height));
+	constant = dot(cn->normal, v_sub(center, ray.orig));
+	if (close_cylinder_cap(ray, constant / coe, \
+			dot(cn->normal, v_sub(cn->center, ray.orig)) / coe))
+	{
+		ob->hit_part = 1;
+		if (cn->radius >= length(v_sub(center, at(ray, constant / coe))))
+			return (*t = constant / coe);
+	}
+	return (0);
+}
+
+double	hit_cone(t_object *ob, t_ray r)
+{
+	t_vec		oc;
+	double		coe[3];
+	double		discriminant;
+	double		t;
+	t_cone		*cn;
+
+	cn = (t_cone *) ob->object;
+	r.dir = unit_vector(r.dir);
+	oc = v_sub(r.orig, cn->center);
+	coe[0] = -(pow(dot(r.dir, cn->normal), 2) - pow(cn->height, 2) \
+			/ (pow(cn->height, 2) + pow(cn->radius, 2)));
+	coe[1] = -(dot(oc, cn->normal) * dot(r.dir, cn->normal) - dot(oc, r.dir) \
+			* pow(cn->height, 2) / (pow(cn->height, 2) + pow(cn->radius, 2)));
+	coe[2] = -(pow(dot(oc, cn->normal), 2) - dot(oc, oc) * pow(cn->height, 2) \
+			/ (pow(cn->height, 2) + pow(cn->radius, 2)));
+	discriminant = coe[1] * coe[1] - coe[0] * coe[2];
+	t = (-coe[1] - sqrt(discriminant)) / coe[0];
+	if (hit_cone_bottom(cn, ob, r, &t))
+		return (t);
+	ob->hit_part = 0;
+	if (t < 0)
+		t = (-coe[1] - sqrt(discriminant)) / coe[0];
+	if (discriminant > 0 && \
+		dot(v_sub(cn->center, at(r, t)), cn->normal) <= cn->height && \
+		dot(v_sub(cn->center, at(r, t)), cn->normal) >= 0)
+		return (t);
+	else
+		return (-1.0);
+}
+
+
+double	hit_hyper(t_object *ob, t_ray r)
+{
+	t_vec		oc;
+	double		coe[3];
+	double		discriminant;
+	double		t;
+	t_hyper		*hy;
+
+	t = 0.0;
+	hy = (t_hyper *) ob->object;
+	r.dir = unit_vector(r.dir);
+	oc = v_sub(r.orig, hy->center);
+	coe[0] = (pow(hy->a * r.dir.x, 2) + pow(hy->a * r.dir.y, 2) - pow(hy->c * r.dir.z, 2));
+	coe[1] = (2 * (hy->b * hy->b * oc.x * r.dir.x + hy->a * hy->a * oc.y * r.dir.y - hy->c * hy->c * oc.z * r.dir.z));
+	coe[2] = (pow(hy->b * oc.x, 2) + pow(hy->a * oc.y, 2) - pow(hy->c * oc.z, 2) - pow(hy->a * hy->b, 2));
+	discriminant = coe[1] * coe[1] - 4 * coe[0] * coe[2];
+	t = (-coe[1] - sqrt(discriminant)) / (2 * coe[0]);
+	if ((discriminant > 0 && \
+	 fabs(dot(v_sub(hy->center, at(r, t)), hy->normal)) <= hy->height / 2))
+		return (t);
+	else
+		return (-1.0);
+}
 
 double	hit_plane(t_object *ob, t_ray r)
 {

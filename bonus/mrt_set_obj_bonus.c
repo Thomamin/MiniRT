@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mrt_set_obj.c                                      :+:      :+:    :+:   */
+/*   mrt_set_obj_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,63 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+#include "minirt_bonus.h"
+
+t_cone	*set_cone(char *map, t_object *ob)
+{
+	t_cone	*cn;
+
+	ob->hit_f = hit_cone;
+	ob->ratio_f = ratio_cn;
+	map = map + 2;
+	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
+		map++;
+	cn = malloc(sizeof(t_cone) * 1);
+	if (!cn)
+		exit(printf("malloc error\n"));
+	cn->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	cn->normal = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	cn->radius = ft_atof(&map);
+	cn->height = ft_atof(&map);
+	cn->color = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	check_viewpoint(cn->normal);
+	cn->normal = unit_vector(cn->normal);
+	check_color(cn->color);
+	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
+		map++;
+	if (map[0] != '\0')
+		exit(printf("%c is wrong parameter\n", map[0]));
+	return (cn);
+}
+
+t_hyper	*set_hyper(char *map, t_object *ob)
+{
+	t_hyper	*hy;
+
+	ob->hit_f = hit_hyper;
+	ob->ratio_f = ratio_hy;
+	map = map + 2;
+	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
+		map++;
+	hy = malloc(sizeof(t_hyper) * 1);
+	if (!hy)
+		exit(printf("malloc error\n"));
+	hy->center = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	hy->normal = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	hy->a = ft_atof(&map);
+	hy->b = ft_atof(&map);
+	hy->c = ft_atof(&map);
+	hy->height = ft_atof(&map);
+	hy->color = make_vec(ft_atof(&map), ft_atof(&map), ft_atof(&map));
+	check_viewpoint(hy->normal);
+	hy->normal = unit_vector(hy->normal);
+	check_color(hy->color);
+	while (map[0] == ' ' || (map[0] >= 9 && map[0] <= 13))
+		map++;
+	if (map[0] != '\0')
+		exit(printf("%c is wrong parameter\n", map[0]));
+	return (hy);
+}
 
 t_sphere	*set_sphere(char *map, t_object *ob)
 {

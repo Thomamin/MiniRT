@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mrt_utils.c                                        :+:      :+:    :+:   */
+/*   mrt_utils_bonus.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+#include "minirt_bonus.h"
 
 t_object	*ft_lstnew(int nb, char *map)
 {
@@ -27,6 +27,10 @@ t_object	*ft_lstnew(int nb, char *map)
 		ob->object = (void *)set_cylinder(map, ob);
 	else if (nb == PLANE)
 		ob->object = (void *)set_plane(map, ob);
+	else if (nb == CONE)
+		ob->object = (void *)set_cone(map, ob);
+	else if (nb == HYPER)
+		ob->object = (void *)set_hyper(map, ob);
 	ob->rank = i;
 	i++;
 	ob->next = NULL;

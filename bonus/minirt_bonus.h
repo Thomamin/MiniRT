@@ -1,17 +1,5 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   minirt.h                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: migo <migo@student.42seoul.kr>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/24 11:54:18 by migo              #+#    #+#             */
-/*   Updated: 2023/05/17 13:17:20 by migo             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#ifndef MINIRT_H
-# define MINIRT_H
+#ifndef MINIRT_BONUS_H
+# define MINIRT_BONUS_H
 
 # include <stdio.h>
 # include <fcntl.h>
@@ -19,7 +7,7 @@
 # include <unistd.h>
 # include <math.h>
 # include "mlx.h"
-# include "get_next_line.h"
+# include "get_next_line_bonus.h"
 
 # define SPHERE 0
 # define CYLINDER 1
@@ -48,6 +36,34 @@ typedef struct s_ray
 	t_vec	orig;
 	t_vec	dir;
 }		t_ray;
+
+typedef struct s_cone
+{
+	t_vec	center;
+	t_vec	normal;
+	double	height;
+	double	radius;
+	t_vec	color;
+}		t_cone;
+
+typedef struct s_hyper
+{
+	t_vec	center;
+	t_vec	normal;
+	double	a;
+	double	b;
+	double	c;
+	double	height;
+	t_vec	color;
+}		t_hyper;
+
+typedef struct s_checker
+{
+	int		width;
+	int		height;
+	t_vec	color_a;
+	t_vec	color_b;
+}		t_checker;
 
 typedef struct s_sphere
 {
@@ -182,5 +198,17 @@ void		set_obj(t_object *ob, t_set *set, t_vec normal, t_ray con);
 
 void		rt_hook(t_data *img);
 int			rt_close(void *param);
+
+t_cone		*set_cone(char *map, t_object *ob);
+t_hyper		*set_hyper(char *map, t_object *ob);
+
+double		hit_hyper(t_object *ob, t_ray r);
+double		hit_cone(t_object *ob, t_ray r);			
+
+void		ratio_cn(t_ray r, double t, t_object *ob, t_set *set);
+void		ratio_hy(t_ray r, double t, t_object *ob, t_set *set);
+
+void		set_obj_bo(t_object *ob, t_set *set, t_vec normal, t_ray con);
+void		classification_map_bo(char *map, int i, t_set *set);
 
 #endif
