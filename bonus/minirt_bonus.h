@@ -17,6 +17,20 @@
 
 # define WIDTH 1200
 # define HEIGHT 800
+# define PI 3.1415926535897
+
+typedef struct s_uv
+{
+	double	u;
+	double	v;
+}		t_uv;
+
+typedef struct s_texture
+{
+	int	width;
+	int	height;
+	void *img;
+}	t_texture;
 
 typedef struct s_vec
 {
@@ -109,7 +123,6 @@ typedef struct s_set
 	t_cam			cam;
 	t_light			light;
 	t_am_light		am_light;
-	int				tmp[10];
 	struct s_object	*objects;
 }		t_set;
 
@@ -210,5 +223,10 @@ void		ratio_hy(t_ray r, double t, t_object *ob, t_set *set);
 
 void		set_obj_bo(t_object *ob, t_set *set, t_vec normal, t_ray con);
 void		classification_map_bo(char *map, int i, t_set *set);
+
+void 		uv_checkers(t_checker* checkers, int r_in_w, int r_in_h, t_vec color_a, t_vec color_b);
+t_vec		uv_pattern_at(t_checker *checkers, t_uv at);
+t_uv		spherical_map(t_vec p);
+t_vec		pattern_at(t_checker* checker, t_vec p);
 
 #endif

@@ -37,6 +37,29 @@ int	ray_color(t_ray r, t_set *set)
 	if (near_length == 184467440737095516)
 		return (0);
 	near->ratio_f(r, near_t, near, set);
+
+///		
+	t_checker checker;
+	t_vec color_a;
+	t_vec color_b;
+	color_a.x = 0;
+	color_a.y = 0;
+	color_a.z = 255;
+	color_b.x = 0;
+	color_b.y = 255;
+	color_b.z = 0;
+	t_vec center;
+	center.x = 0;
+	center.y = 200;
+	center.z = -300;
+	uv_checkers(&checker, 20, 20, color_a, color_b);
+	near->color = pattern_at(&checker, v_sub(at(r,t),center));
+//	printf("r: %f, g: %f, b: %f\n", near->color.x, near->color.y, near->color.z);
+///
+
+
+
+
 	return (set_color(near->color, near->ratio * set->light.power, \
 	set->am_light));
 }
